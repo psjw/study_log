@@ -8,6 +8,8 @@ tags: [JPA, ORM, Entity, Hibernate, Spring Data JPA]
 
 ---
 
+
+
 ## 📅 2025-06-19 - 도메인 분석 설계
 
 ### 💡 학습 주제
@@ -56,3 +58,51 @@ System.out.println(member.getOrders().getClass());
 // → class org.hibernate.collection.internal.PersistentBag
 ```
 ---
+
+
+
+## 📅 2025-06-21 - 웹 계층 개발
+
+### 💡 학습 주제
+- 준영속 엔티티를 수정하는 2가지 방법
+- 변경 감지와 병합(merge) 차이
+
+---
+
+### 🧠 주요 개념 요약
+
+| 항목 | 설명 |
+|------|------|
+| 변경 감지 (Dirty Checking) | 영속성 컨텍스트에서 엔티티를 조회한 후 데이터를 수정하여 커밋 시점에 UPDATE SQL 실행 |
+| 병합 (Merge) | 준영속 상태의 엔티티를 영속 상태로 변경할 때 사용. 다만 **모든 필드를 덮어쓰기** 때문에 `null` 값이 반영될 위험 존재 |
+| 변경 시 고려사항 | Dirty Checking 방식이 부분 변경이 가능하고, 실수 가능성이 적으므로 권장됨 |
+
+---
+
+### 🧪 실습 코드
+
+```java
+@Entity
+public class Member {
+
+    @Id @GeneratedValue
+    private Long id;
+
+    private String name;
+
+    private String address;
+
+}
+
+//변경 감지 -> 이름 만 변경됨
+Member member1 = em.find(Member.class, memberId);
+member1.setName("AA");
+
+//병합 사용 ->  새로 생성된 회원의 모든 필드로 변경 하므로 Address가 null로 변경된다.
+Member member2 = new Member();
+member2.setName("AA");
+ em.merge(memer2);
+
+```
+---
+
