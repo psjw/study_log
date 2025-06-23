@@ -106,3 +106,77 @@ member2.setName("AA");
 ```
 ---
 
+
+# 📘 인프런 - 실전! 스프링 부트와 JPA 활용2 -  API 개발과 성능 최적화 (김영한)
+
+## 📅 2025-06-23 - API개발 고급 - 지연로딩과 조회 성능 최적화
+
+### 💡 학습 주제
+- API개발시 성능 최적화
+- xToOne(@ManyToOne, @OneToOne)의 관계에서의 조회 성능 최적화 방법
+
+---
+
+### 🧠 주요 개념 요약
+
+| 항목 | 설명 |
+|------|------|
+| **InvalidDefinitionException** | `com.fasterxml.jackson.databind.exc.InvalidDefinitionException: No serializer found for class org.hibernate.proxy.pojo.bytebuddy.ByteBuddyInterceptor` → LAZY 로딩으로 인해 Jackson이 Proxy 객체를 직렬화하려다 실패함 |
+| **@JsonIgnore** | Entity 반환 시 양방향 매핑이 있을 경우, 순환 참조로 인한 무한 루프 방지를 위해 필드에 `@JsonIgnore`를 반드시 설정해야 함 |
+| **N+1 문제 원인** | 예: Order 2건 조회 시, 각 Order의 연관된 Member/Delivery가 LAZY 로딩으로 각각 추가 쿼리를 유발함. EAGER 사용 시 더 많은 예측 불가능한 쿼리 발생 가능 |
+| **N+1 해결 방법** | 대부분은 **fetch join**으로 해결. 성능 병목 발생 시 Dto 조회 고려. 최후의 수단으로 Native SQL, `JdbcTemplate` 활용 가능 |
+
+---
+
+
+
+### 🧪 실습 코드
+#### 📌 1. 엔티티 설정
+
+```java
+@Entity
+public class Order {
+
+    @Id @GeneratedValue
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "MEMBER_ID")
+    private Member member;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "DELIVERY_ID")
+    private Delivery delivery;
+}
+
+@Entity
+public class Member {
+
+    @Id @GeneratedValue
+    private Long id;
+
+    @OneToMany(mappedBy = "member")
+    private List<Order> orders = new ArrayList<>();
+}
+
+```
+📌 2. Fetch Join 사용 예시
+```java
+List<Order> orders = em.createQuery(
+    "select o from Order o " +
+    "join fetch o.member m " +
+    "join fetch o.delivery d", Order.class)
+.getResultList();
+```
+
+📌 3. DTO 직접 조회 예시 (필요한 필드만 조회)
+```java
+List<OrderSimpleQueryDto> result = em.createQuery(
+    "select new jpabook.jpashop.repository.ordersimpequery.OrderSimpleQueryDto(" +
+    "o.id, m.name, o.orderDate, o.status, d.address) " +
+    "from Order o " +
+    "join o.member m " +
+    "join o.delivery d", OrderSimpleQueryDto.class)
+.getResultList();
+```
+---
