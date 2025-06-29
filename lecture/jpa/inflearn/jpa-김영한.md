@@ -332,3 +332,66 @@ Native SQL / JdbcTemplate
 ```
 
 ---
+
+
+
+
+# 📘 인프런 - 실전! 스프링 부트와 JPA 활용2 -  API 개발과 성능 최적화 (김영한)
+
+## 📅 2025-06-29 - API개발 고급 - 실무 필수 최적화
+
+### 💡 학습 주제
+
+
+- OSIV(Open Session In View) 개념 이해
+- 실무 환경에서의 운영 전략 및 설정 방법
+  
+---
+
+### 🧠 주요 개념 요약
+
+
+| 항목 | 설명 |
+|------|------|
+| **Open Session In View (OSIV)** | Hibernate의 OSIV와 JPA의 Open EntityManager In View는 사실상 동일한 개념으로, 트랜잭션 범위 외에도 영속성 컨텍스트(EntityManager)를 유지해 뷰 렌더링 시 LAZY 로딩을 허용함 |
+| **`spring.jpa.open-in-view` 옵션** | `true`(기본값): request ~ response 전체 사이클 동안 DB 커넥션과 영속성 컨텍스트 유지<br>`false`: 트랜잭션 종료 시점(@Transactional 종료)과 함께 DB 커넥션 반납 |
+| **기본 경고 로그** | `open-in-view` 옵션을 설정하지 않으면 스프링 부트 실행 시 기본값 `true`로 동작하며 다음과 같은 경고 로그 출력됨:<br> `WARN ... spring.jpa.open-in-view is enabled by default.` |
+| **Fetch Join + distinct의 부작용** | 컬렉션 fetch join 시 중복 row가 발생하여 페이징이 불가능해짐. 이는 OSIV와는 별개 이슈지만 자주 연계되므로 주의 |
+| **Service 분리 전략 (Command-Query Responsibility)** | 핵심 도메인 로직은 `XxxService`, 화면 조회/쿼리 최적화는 `XxxQueryService` 등으로 분리하여 책임을 명확히 함 (CQRS-like 분리)
+
+
+
+---
+
+
+
+### 🧪 실습 코드
+#### 📄 `application.yml` 설정
+
+```yaml
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 100
+    open-in-view: false
+```
+✔️ open-in-view: false 설정 시, 서비스 계층 내부에서 필요한 모든 데이터를 미리 조회(fetch)해야 함
+✔️ 이후 컨트롤러/뷰 렌더링 시에는 더 이상 LAZY 로딩이 동작하지 않음
+
+### ✅ 운영 전략 가이드
+| **시스템 유형** | **OSIV 권장 설정** | **이유** |
+|:-:|:-:|:-:|
+| **B2C (고객-facing)** | false | 커넥션 자원 낭비 방지, 성능 이슈 방지 |
+| **Admin/내부 백오피스** | true 또는 선택적 | 데이터량 적고 빠른 개발이 필요할 경우 허용 |
+
+
+### 🔧 실무 팁
+- open-in-view: false 설정 시 모든 쿼리는 서비스 계층 내부에서 명시적으로 처리되어야 함
+- 컨트롤러에서 LAZY 로딩을 발생시키면 LazyInitializationException 예외 발생 가능
+- 반드시 DTO 변환을 트랜잭션 내부에서 완료해야 함
+
+---
