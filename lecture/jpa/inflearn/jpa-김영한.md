@@ -64,8 +64,11 @@ System.out.println(member.getOrders().getClass());
 ## 📅 2025-06-21 - 웹 계층 개발
 
 ### 💡 학습 주제
-- 준영속 엔티티를 수정하는 2가지 방법
-- 변경 감지와 병합(merge) 차이
+- XToOne 관계는 fetch join으로 1회에 조회
+- XToMany 관계는:
+  - 1) `@BatchSize` or `default_batch_fetch_size`로 IN 절 최적화
+  - 2) DTO를 루트/서브 쿼리 방식으로 나누어 조회
+  - 3) Flat DTO로 join 후 메모리에서 groupBy 재조합
 
 ---
 
@@ -160,7 +163,7 @@ public class Member {
 }
 
 ```
-📌 2. Fetch Join 사용 예시
+#### 📌 2. Fetch Join 사용 예시
 ```java
 List<Order> orders = em.createQuery(
     "select o from Order o " +
@@ -169,7 +172,7 @@ List<Order> orders = em.createQuery(
 .getResultList();
 ```
 
-📌 3. DTO 직접 조회 예시 (필요한 필드만 조회)
+#### 📌 3. DTO 직접 조회 예시 (필요한 필드만 조회)
 ```java
 List<OrderSimpleQueryDto> result = em.createQuery(
     "select new jpabook.jpashop.repository.ordersimpequery.OrderSimpleQueryDto(" +
@@ -179,4 +182,153 @@ List<OrderSimpleQueryDto> result = em.createQuery(
     "join o.delivery d", OrderSimpleQueryDto.class)
 .getResultList();
 ```
+---
+
+
+
+
+# 📘 인프런 - 실전! 스프링 부트와 JPA 활용2 -  API 개발과 성능 최적화 (김영한)
+
+## 📅 2025-06-29 - API개발 고급 - 컬렉션 조회 최적화
+
+### 💡 학습 주제
+
+- API 성능 최적화를 위한 엔티티 조회 전략
+- @OneToMany 관계에서 발생하는 N+1 문제 해결 방법
+- 컬렉션 페이징 최적화 전략 (@BatchSize, DTO 분할 조회 등)
+  
+---
+
+### 🧠 주요 개념 요약
+
+| 항목 | 설명 |
+|------|------|
+| **@OneToMany + LAZY** | LAZY 설정 시 연관 엔티티를 순차적으로 조회하며 N+1 문제가 발생 |
+| **@JsonIgnore 주의** | 양방향 참조로 인해 무한 루프 방지에 사용되나, Entity 직접 반환은 API 스펙이 불안정해지므로 DTO 사용을 권장 |
+| **Fetch Join + distinct** | SQL은 1번만 실행되지만 페이징이 불가능 (컬렉션 join이므로 중복 row 발생) |
+| **페이징 최적화 방법 #1** | XToOne(@ManyToOne, @OneToOne)은 fetch join으로 조회하고, 컬렉션은 LAZY로 두고 `@BatchSize`나 `hibernate.default_batch_fetch_size`로 in절 처리 |
+| **BatchSize 한계** | DB의 in절 제한을 초과하면 오류 발생 (예: Oracle은 1000개 제한) |
+| **페이징 최적화 방법 #2** | DTO로 루트 조회 후, 컬렉션을 개별 쿼리로 조회하여 매핑. 또는 flat DTO로 조회 후 메모리에서 그룹핑 |
+| **실무 권장 순서** | 1) 엔티티 조회로 접근 → 2) BatchSize 최적화 → 3) DTO 분할 조회 → 4) Flat DTO → 5) Native SQL or JdbcTemplate
+
+
+---
+
+
+
+### 🧪 실습 코드
+#### 1. DTO 직접 조회 - N+1 방식
+
+```java
+List<OrderQueryDto> result = findOrders();
+
+result.forEach(o -> {
+    List<OrderItemQueryDto> orderItems = findOrderItems(o.getOrderId());
+    o.setOrderItems(orderItems);
+});
+
+private List<OrderQueryDto> findOrders() {
+    return em.createQuery(
+        "select new jpabook.jpashop.repository.order.query.OrderQueryDto(" +
+        "o.id, m.name, o.orderDate, o.status, d.address)" +
+        " from Order o" +
+        " join o.member m" +
+        " join o.delivery d", OrderQueryDto.class)
+    .getResultList();
+}
+
+private List<OrderItemQueryDto> findOrderItems(Long orderId) {
+    return em.createQuery(
+        "select new jpabook.jpashop.repository.order.query.OrderItemQueryDto(" +
+        "oi.order.id, i.name, oi.orderPrice, oi.count)" +
+        " from OrderItem oi" +
+        " join oi.item i" +
+        " where oi.order.id = :orderId", OrderItemQueryDto.class)
+    .setParameter("orderId", orderId)
+    .getResultList();
+}
+
+```
+#### 📌 2. DTO 직접 조회 - 컬렉션 일괄 조회 및 매핑
+- 	쿼리 수 최소화 (N+1 → 2회)
+- 페이징 불가하지만 성능과 단순성은 우수
+```java
+List<OrderQueryDto> result = findOrders();
+
+Map<Long, List<OrderItemQueryDto>> orderItemMap =
+    findOrderItemMap(toOrderIds(result));
+
+result.forEach(o -> o.setOrderItems(orderItemMap.get(o.getOrderId())));
+
+private List<Long> toOrderIds(List<OrderQueryDto> result) {
+    return result.stream()
+        .map(OrderQueryDto::getOrderId)
+        .collect(Collectors.toList());
+}
+
+private Map<Long, List<OrderItemQueryDto>> findOrderItemMap(List<Long> orderIds) {
+    List<OrderItemQueryDto> orderItems = em.createQuery(
+        "select new jpabook.jpashop.repository.order.query.OrderItemQueryDto(" +
+        "oi.order.id, i.name, oi.orderPrice, oi.count)" +
+        " from OrderItem oi" +
+        " join oi.item i" +
+        " where oi.order.id in :orderIds", OrderItemQueryDto.class)
+    .setParameter("orderIds", orderIds)
+    .getResultList();
+
+    return orderItems.stream()
+        .collect(Collectors.groupingBy(OrderItemQueryDto::getOrderId));
+}
+```
+
+#### 📌 3. Flat DTO → 메모리 그룹핑 방식
+- 중복 row로 인해 메모리 비용 증가
+-  페이징 불가능 (모든 조인 결과를 메모리에 올린 뒤 재구성)
+- 정렬과 필터링이 제한적
+```java
+List<OrderFlatDto> flats = orderQueryRepository.findAllByDto_flat();
+
+List<OrderQueryDto> result = flats.stream()
+    .collect(Collectors.groupingBy(
+        o -> new OrderQueryDto(o.getOrderId(), o.getName(), o.getOrderDate(),
+                               o.getOrderStatus(), o.getAddress()),
+        Collectors.mapping(
+            o -> new OrderItemQueryDto(o.getOrderId(), o.getItemName(),
+                                       o.getOrderPrice(), o.getCount()),
+            Collectors.toList()
+        )
+    ))
+    .entrySet().stream()
+    .map(e -> new OrderQueryDto(
+        e.getKey().getOrderId(), e.getKey().getName(), e.getKey().getOrderDate(),
+        e.getKey().getOrderStatus(), e.getKey().getAddress(), e.getValue()))
+    .collect(Collectors.toList());
+
+public List<OrderFlatDto> findAllByDto_flat() {
+    return em.createQuery(
+        "select new jpabook.jpashop.repository.order.query.OrderFlatDto(" +
+        "o.id, m.name, o.orderDate, o.status, d.address, " +
+        "i.name, oi.orderPrice, oi.count)" +
+        " from Order o" +
+        " join o.member m" +
+        " join o.delivery d" +
+        " join o.orderItems oi" +
+        " join oi.item i", OrderFlatDto.class)
+    .getResultList();
+}
+```
+---
+
+
+### 🧾 마무리
+- JPA는 1:N 페치 조인 시 페이징이 불가하므로, 상황에 맞는 전략을 선택하는 것이 중요
+- 실무에서는 다음의 우선순위를 따라야 함:
+```txt
+엔티티 조회 (Fetch Join XToOne) → 
+@BatchSize 컬렉션 조회 → 
+DTO 분할 조회 → 
+Flat DTO → 
+Native SQL / JdbcTemplate
+```
+
 ---
