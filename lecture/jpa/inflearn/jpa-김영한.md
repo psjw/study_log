@@ -4,10 +4,7 @@ topic: JPA
 tags: [JPA, ORM, Entity, Hibernate, Spring Data JPA]
 ---
 
-# 📘 인프런 - 실전! 스프링 부트와 JPA 활용1 - 웹 애플리케이션 개발 (김영한)
-
----
-
+# 📘 인프런 - 실전! 스프링 부트와 JPA 활용1 - 웹 애플리케이션 개발
 
 
 ## 📅 2025-06-19 - 도메인 분석 설계
@@ -110,7 +107,7 @@ member2.setName("AA");
 ---
 
 
-# 📘 인프런 - 실전! 스프링 부트와 JPA 활용2 -  API 개발과 성능 최적화 (김영한)
+# 📘 인프런 - 실전! 스프링 부트와 JPA 활용2 -  API 개발과 성능 최적화
 
 ## 📅 2025-06-23 - API개발 고급 - 지연로딩과 조회 성능 최적화
 
@@ -185,9 +182,6 @@ List<OrderSimpleQueryDto> result = em.createQuery(
 ---
 
 
-
-
-# 📘 인프런 - 실전! 스프링 부트와 JPA 활용2 -  API 개발과 성능 최적화 (김영한)
 
 ## 📅 2025-06-29 - API개발 고급 - 컬렉션 조회 최적화
 
@@ -334,10 +328,6 @@ Native SQL / JdbcTemplate
 ---
 
 
-
-
-# 📘 인프런 - 실전! 스프링 부트와 JPA 활용2 -  API 개발과 성능 최적화 (김영한)
-
 ## 📅 2025-06-29 - API개발 고급 - 실무 필수 최적화
 
 ### 💡 학습 주제
@@ -395,3 +385,154 @@ spring:
 - 반드시 DTO 변환을 트랜잭션 내부에서 완료해야 함
 
 ---
+
+
+
+# 📘 인프런 - 실전! 스프링 데이터 JPA
+
+## 📅 2025-06-30 - 공통 인터페이스 기능 - 공통인터페이스
+
+### 💡 학습 주제
+
+
+- JPA 공통 인터페이스 기능 확인
+- `@EnableJpaRepositories`를 통한 위치 지정
+- `JpaRepository<T, ID>` 분석
+  
+---
+
+### 🧠 주요 개념 요약
+
+| 항목 | 설명 |
+|------|------|
+| **@EnableJpaRepositories** | JavaConfig에서 JPA Repository의 스캔 경로 지정 가능. Spring Boot에서는 `@SpringBootApplication` 하위 패키지를 자동 인식하므로 생략 가능 |
+| **JpaRepository** | Spring Data JPA가 프록시 기반의 구현체를 런타임에 자동 생성 (`class jdk.proxy2.$ProxyXXX`) |
+| **상속 구조 (v3.3.13 기준)** | `JpaRepository → ListCrudRepository → CrudRepository → Repository`<br>`JpaRepository → ListPagingAndSortingRepository → PagingAndSortingRepository → Repository` |
+| **주요 메서드** | 내부적으로 `EntityManager`를 통해 `find()`, `save()`, `delete()` 등의 반복 로직을 추상화하여 제공함 |
+
+
+---
+
+
+
+### 🧪 실습 코드
+#### 📌 1. `@EnableJpaRepositories` 사용 예시
+
+```java
+@EnableJpaRepositories(basePackages = "jpabook.jpashop.repository")
+```
+
+#### 📌 2. JpaRepository 구조 (v3.3.13 기준)
+- ListCrudRepository: CRUD 기능 제공
+- ListPagingAndSortingRepository: 페이징 + 정렬 기능
+- QueryByExampleExecutor: Example 객체 기반 동적 쿼리 생성 지원 (내부적 Criteria 생성)
+```java
+public interface JpaRepository<T, ID>
+        extends ListCrudRepository<T, ID>,
+                ListPagingAndSortingRepository<T, ID>,
+                QueryByExampleExecutor<T> {
+    // ...
+}
+```
+
+---
+
+
+### 🧾 마무리
+- JpaRepository<T, ID> 인터페이스를 상속하면 별도의 구현 없이 CRUD, 페이징, 정렬 기능 자동 제공
+- Spring Data JPA는 런타임에 프록시 객체로 구현체를 자동 생성
+- 기본 설정만으로도 생산성과 일관된 Repository 계층 구현 가능
+
+---
+
+
+
+## 📅 2025-06-30 - 쿼리 메소드 기능 - 메소드이름 쿼리생성, JPA NamedQuery, @Query
+
+### 💡 학습 주제
+
+
+- 메서드 이름 기반 쿼리 생성 규칙
+- JPA NamedQuery 특징 및 사용법
+- `@Query` 어노테이션의 특징과 활용
+  
+---
+
+### 🧠 주요 개념 요약
+
+| 항목 | 설명 |
+|------|------|
+| **메서드 이름 기반 쿼리 생성** | `find`, `read`, `query`, `get` 등의 접두어 + `By`를 조합하여 자동 쿼리 생성 <br>예: `findByUsernameAndAgeGreaterThan()` |
+| **COUNT / EXISTS / DELETE** | `countBy`, `existsBy`, `deleteBy` 등의 접두어 사용 가능 |
+| **DISTINCT / LIMIT** | `findDistinctBy`, `findTop3By`, `findFirst3By` 등의 키워드 사용 가능 |
+| **JPA NamedQuery** | 엔티티 클래스에 `@NamedQuery`를 선언하여 사용. 런타임 이전(앱 시작 시점)에 문법 오류 검출 가능 |
+| **@Query** | 커스텀 JPQL을 정의할 수 있으며, DTO 조회도 가능. `@NamedQuery`보다 유연하며 문법 오류도 앱 시작 시점에 확인 가능 |
+| **파라미터 바인딩** | 이름 기반(`:name`) 또는 위치 기반(`?0`) 지원<br>`@Param("name")` 사용 권장 (가독성 및 안정성 향상) |
+| **IN 절 지원** | `List<String>`과 같은 컬렉션 타입 파라미터로 `IN` 조건을 표현 가능 |
+| **리턴 타입 처리** | List 반환 시 결과가 없으면 빈 컬렉션 반환<br>도메인 객체 반환 시 null 반환 가능 → `Optional` 사용 권장 |
+| **단건 조회 예외** | 조회 결과가 둘 이상일 경우 `NonUniqueResultException` 발생 가능성 있음 |
+---
+
+
+
+### 🧪 실습 코드
+#### 📌 1. 메서드 이름 기반 쿼리
+
+```java
+public interface MemberRepository extends JpaRepository<Member, Long> {
+    // 두 쿼리는 동일하게 동작
+    List<Member> findByUsernameAndAgeGreaterThan(String username, int age);
+    List<Member> findMemberByUsernameAndAgeGreaterThan(String username, int age);
+}
+```
+
+#### 📌 2.JPA NamedQuery 사용
+- Spring Data JPA는 우선 NamedQuery를 먼저 탐색한 뒤 메서드 이름으로 생성한 쿼리 여부를 판단
+```java
+// Entity
+@Entity
+@NamedQuery(
+    name = "Member.findByUsername",
+    query = "SELECT m FROM Member m WHERE m.username = :username"
+)
+public class Member {
+    ...
+}
+
+// Repository
+@Query(name = "Member.findByUsername")
+List<Member> findByUsername(@Param("username") String username);
+```
+
+#### 📌 3. @Query 기본 사용 예
+```java
+@Query("SELECT m FROM Member m WHERE m.username = :username AND m.age = :age")
+List<Member> findUser(@Param("username") String username, @Param("age") int age);
+```
+
+#### 📌 4. @Query DTO 조회
+```java
+@Query("SELECT new study.datajpa.dto.MemberDto(m.id, m.username, t.name) " +
+       "FROM Member m JOIN m.team t")
+List<MemberDto> findMemberDto();
+```
+
+#### 📌 4. 컬렉션 파라미터 (IN 절)
+```java
+@Query("select m from Member m where m.username in :names")
+List<Member> findByNames(@Param("names") List<String> names);
+```
+
+
+---
+
+
+### 🧾 마무리
+- @Query는 NamedQuery의 장점을 포함하면서도 더 유연하므로 일반적으로 선호됨
+- 메서드 이름 기반 쿼리는 간단한 조건 검색에 유용하지만, 복잡한 조건은 @Query 사용이 더 적합
+- 단건 조회 시에는 반드시 Optional<T>를 사용하여 null과 예외를 명확히 구분하는 것이 바람직함
+
+---
+
+
+
