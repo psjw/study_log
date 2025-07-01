@@ -674,3 +674,77 @@ QueryExecutionRequestException: Not supported for DML operations
 - 벌크 연산 이후 조회 시, 캐시 불일치 문제를 방지하기 위해 컨텍스트 정리 작업을 명확히 할 것
 
 ---
+
+
+
+
+## 📅 2025-07-01 - 쿼리 메소드 기능 : @EntityGraph
+
+### 💡 학습 주제
+
+- `@EntityGraph` 사용 이유
+- 사용 시 주의사항
+
+---
+
+### 🧠 주요 개념 요약
+
+
+| 항목 | 설명 |
+|------|------|
+| **@EntityGraph** | 연관된 엔티티를 **지연로딩이 아닌 fetch join 방식으로 즉시 로딩**함. 기본적으로 `LEFT OUTER JOIN`을 사용 |
+| **@NamedEntityGraph** | 엔티티에 정의된 이름 기반의 EntityGraph를 재사용할 수 있도록 설정 |
+| **LAZY Loading** | 지연로딩으로 인해 발생하는 **N+1 문제**를 해결하는 방법 중 하나로 fetch join을 간편하게 적용 |
+| **주의사항** | 단순 연관관계에는 유용하나, **복잡한 조인 조건이나 여러 단계 조인에는 직접 JPQL 작성 권장** |
+
+
+---
+
+
+
+### 🧪 실습 코드
+
+### 1. EntityGraph 기본 사용
+
+```java
+// 기본 메서드 재정의 시 사용
+@Override
+@EntityGraph(attributePaths = {"team"})
+List<Member> findAll();
+
+// JPQL과 함께 사용하는 경우
+@EntityGraph(attributePaths = {"team"})
+@Query("select m from Member m")
+List<Member> findMemberEntityGraph();
+
+// 메서드 쿼리 이름 기반으로 간편하게 사용하는 경우
+@EntityGraph(attributePaths = {"team"})
+List<Member> findByUsername(String username);
+```
+
+#### 📌 2.   NamedEntityGraph 정의 및 사용
+
+```java
+// 엔티티 내부에 정의
+@NamedEntityGraph(
+  name = "Member.all",
+  attributeNodes = @NamedAttributeNode("team")
+)
+@Entity
+public class Member {
+    // ...
+}
+
+// NamedEntityGraph 사용
+@EntityGraph("Member.all")
+@Query("select m from Member m")
+List<Member> findMemberEntityGraph();
+```
+
+---
+### 🧾 마무리
+- @EntityGraph는 fetch join을 어노테이션으로 간편하게 지정할 수 있는 기능이며, 기본적으로 LEFT OUTER JOIN으로 동작함
+-  N+1 문제를 해결하는 용도로 적합하며, 단순한 연관관계에 한해 사용하는 것이 바람직함
+-  복잡한 연관 조회 및 조건이 필요한 경우에는 직접 JPQL과 fetch join을 명시하는 것이 안전하고 명확함
+
+---
