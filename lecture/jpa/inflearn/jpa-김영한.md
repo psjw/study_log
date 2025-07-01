@@ -704,7 +704,7 @@ QueryExecutionRequestException: Not supported for DML operations
 
 ### 🧪 실습 코드
 
-### 1. EntityGraph 기본 사용
+####  📌1. EntityGraph 기본 사용
 
 ```java
 // 기본 메서드 재정의 시 사용
@@ -744,6 +744,70 @@ List<Member> findMemberEntityGraph();
 ---
 ### 🧾 마무리
 - @EntityGraph는 fetch join을 어노테이션으로 간편하게 지정할 수 있는 기능이며, 기본적으로 LEFT OUTER JOIN으로 동작함
+-  N+1 문제를 해결하는 용도로 적합하며, 단순한 연관관계에 한해 사용하는 것이 바람직함
+-  복잡한 연관 조회 및 조건이 필요한 경우에는 직접 JPQL과 fetch join을 명시하는 것이 안전하고 명확함
+
+---
+
+
+
+
+
+
+
+## 📅 2025-07-01 - 쿼리 메소드 기능 : JPA Hint & Lock
+
+### 💡 학습 주제
+
+- JPA에서 Query Hint 및 Lock 기능 학습
+- Hibernate 기반 힌트와 비관적 락의 사용법
+
+---
+
+### 🧠 주요 개념 요약
+
+
+| 항목 | 설명 |
+|------|------|
+| **@QueryHints** | SQL 힌트가 아닌 **JPA 구현체(Hibernate 등)**에 전달되는 힌트로, `readOnly` 설정 등을 통해 성능을 최적화할 수 있음 |
+| **@Lock** | 트랜잭션 내에서 **비관적 락**(예: SELECT FOR UPDATE) 또는 **낙관적 락**을 설정할 수 있으며, `LockModeType`에 따라 동작이 달라짐 (`PESSIMISTIC_WRITE`, `OPTIMISTIC` 등) |
+| **forCounting 옵션** | `Page` 타입 반환 시, 내부적으로 실행되는 **count 쿼리에도 동일한 힌트**를 적용하도록 설정하는 옵션 |
+---
+
+
+
+### 🧪 실습 코드
+
+#### 📌  1. @QueryHints - 단건 조회 (readOnly)
+
+```java
+@QueryHints(
+  value = @QueryHint(name = "org.hibernate.readOnly", value = "true")
+)
+Member findReadOnlyByUsername(String username);
+```
+
+#### 📌  2. @QueryHints - 페이징 + forCounting 옵션
+
+```java
+@QueryHints(
+  value = @QueryHint(name = "org.hibernate.readOnly", value = "true"),
+  forCounting = true
+)
+Page<Member> findByUsername(String name, Pageable pageable);
+```
+
+
+#### 📌 3.   @Lock - 비관적 락 사용
+
+```java
+@Lock(LockModeType.PESSIMISTIC_WRITE)
+List<Member> findByUsername(String name);
+```
+
+---
+### 🧾 마무리
+- JPA Hint는  
 -  N+1 문제를 해결하는 용도로 적합하며, 단순한 연관관계에 한해 사용하는 것이 바람직함
 -  복잡한 연관 조회 및 조건이 필요한 경우에는 직접 JPQL과 fetch join을 명시하는 것이 안전하고 명확함
 
