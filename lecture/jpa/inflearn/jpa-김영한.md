@@ -620,3 +620,57 @@ from
 
 ---
 
+
+
+## 📅 2025-07-01 - 쿼리 메소드 기능 : 벌크성 수정 쿼리
+
+### 💡 학습 주제
+
+
+- JPA에서 벌크성 수정 쿼리 처리 방법
+- 벌크성 수정 쿼리 사용 시 주의할 점
+
+---
+
+### 🧠 주요 개념 요약
+
+
+| 항목 | 설명 |
+|------|------|
+| **벌크성 수정 쿼리** | 특정 조건에 맞는 데이터를 **한 번에 일괄 수정/삭제**하는 쿼리 |
+| **@Modifying** | `@Query`와 함께 사용되어 DML 쿼리(UPDATE/DELETE)를 실행할 수 있게 해주는 어노테이션 |
+| **@Modifying(clearAutomatically = true)** | 영속성 컨텍스트를 자동으로 clear 하여 **DB와 캐시 불일치 문제를 방지**함 |
+| **주의사항** | 벌크 쿼리는 DB에 직접 반영되고 **영속성 컨텍스트에는 영향을 주지 않음** → `flush()` + `clear()` 또는 `clearAutomatically` 필수 |
+
+
+
+---
+
+
+
+### 🧪 실습 코드
+#### 📌 1.  스프링 데이터 JPA를 사용한 벌크성 수정 쿼리
+
+```java
+@Modifying(clearAutomatically = true)
+@Query("update Member m set m.age = m.age + 1 where m.age >= :age")
+int bulkAgePlus(@Param("age") int age);
+```
+
+---
+
+### ⚠️ 예외 상황
+- @Modifying 없이 DML 쿼리를 작성할 경우:
+```text
+org.springframework.dao.InvalidDataAccessApiUsageException:
+QueryExecutionRequestException: Not supported for DML operations
+```
+→ 반드시 @Modifying을 함께 명시할 것
+
+---
+### 🧾 마무리
+- JPA의 벌크 쿼리는 영속성 컨텍스트와 동기화되지 않으므로 clear 작업이 필수
+- @Modifying(clearAutomatically = true)는 flush/clear의 자동 대체 역할을 수행
+- 벌크 연산 이후 조회 시, 캐시 불일치 문제를 방지하기 위해 컨텍스트 정리 작업을 명확히 할 것
+
+---
