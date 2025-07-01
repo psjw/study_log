@@ -109,7 +109,7 @@ member2.setName("AA");
 
 # 📘 인프런 - 실전! 스프링 부트와 JPA 활용2 -  API 개발과 성능 최적화
 
-## 📅 2025-06-23 - API개발 고급 - 지연로딩과 조회 성능 최적화
+## 📅 2025-06-23 - API개발 고급 :ㄹ 지연로딩과 조회 성능 최적화
 
 ### 💡 학습 주제
 - API개발시 성능 최적화
@@ -183,7 +183,7 @@ List<OrderSimpleQueryDto> result = em.createQuery(
 
 
 
-## 📅 2025-06-29 - API개발 고급 - 컬렉션 조회 최적화
+## 📅 2025-06-29 - API개발 고급 : 컬렉션 조회 최적화
 
 ### 💡 학습 주제
 
@@ -390,7 +390,7 @@ spring:
 
 # 📘 인프런 - 실전! 스프링 데이터 JPA
 
-## 📅 2025-06-30 - 공통 인터페이스 기능 - 공통인터페이스
+## 📅 2025-06-30 - 공통 인터페이스 기능 : 공통인터페이스
 
 ### 💡 학습 주제
 
@@ -447,7 +447,7 @@ public interface JpaRepository<T, ID>
 
 
 
-## 📅 2025-06-30 - 쿼리 메소드 기능 - 메소드이름 쿼리생성, JPA NamedQuery, @Query
+## 📅 2025-06-30 - 쿼리 메소드 기능 : 메소드이름 쿼리생성, JPA NamedQuery, @Query
 
 ### 💡 학습 주제
 
@@ -470,7 +470,7 @@ public interface JpaRepository<T, ID>
 | **파라미터 바인딩** | 이름 기반(`:name`) 또는 위치 기반(`?0`) 지원<br>`@Param("name")` 사용 권장 (가독성 및 안정성 향상) |
 | **IN 절 지원** | `List<String>`과 같은 컬렉션 타입 파라미터로 `IN` 조건을 표현 가능 |
 | **리턴 타입 처리** | List 반환 시 결과가 없으면 빈 컬렉션 반환<br>도메인 객체 반환 시 null 반환 가능 → `Optional` 사용 권장 |
-| **단건 조회 예외** | 조회 결과가 둘 이상일 경우 `NonUniqueResultException` 발생 가능성 있음 |
+| **단건 조회 예외** | 조회 결과가 둘 이상일 경우 `NonUniqueResultException` 발생 가능성 있음 (스프링에서 `IncorrectResultSizeDataAccessException`으로 추상화하여 내려줌) |
 ---
 
 
@@ -535,4 +535,88 @@ List<Member> findByNames(@Param("names") List<String> names);
 ---
 
 
+
+
+
+
+
+## 📅 2025-07-01 - 쿼리 메소드 기능 : JPA 페이징과 정렬
+
+### 💡 학습 주제
+
+
+- JPA에서 페이징 처리 방법
+- `Page`와 `Slice`의 차이점 및 사용처
+
+---
+
+### 🧠 주요 개념 요약
+
+
+| 항목 | 설명 |
+|------|------|
+| **Pageable** | 페이징 및 정렬 정보를 담고 있는 객체. `PageRequest.of()`를 통해 생성 |
+| **Page** | 총 데이터 개수를 조회하는 추가 쿼리를 포함함. 전체 페이지 수 계산 가능 |
+| **Slice** | 다음 페이지 존재 여부만 판단. 총 개수 조회 X → **무한 스크롤/더보기** UI에 적합 |
+| **CountQuery 분리** | 복잡한 조인 쿼리에서 Count 성능이 저하될 경우 별도로 분리하여 성능 최적화 |
+| **Hibernate 6의 Left Join 최적화** | Spring Boot 3.x 이상에서 조건 없는 `left join`은 제거됨 → 명시적으로 `fetch join` 사용 필요 |
+---
+
+
+
+### 🧪 실습 코드
+#### 📌 1.  `PageRequest`를 사용한 페이징 + 정렬
+
+```java
+PageRequest pageRequest = PageRequest.of(0, 3, Sort.by(Direction.DESC, "username"));
+```
+
+#### 📌 2. P Page, Slice 인터페이스 구조
+```java
+public interface Page<T> extends Slice<T> {}
+
+public interface Slice<T> extends Streamable<T>{}
+```
+
+#### 📌 3. Count 쿼리 분리 예시
+```java
+@Query(
+  value = "select m from Member m",
+  countQuery = "select count(m.username) from Member m"
+)
+Page<Member> findMemberAllCountBy(Pageable pageable);
+```
+
+#### 📌 4. DTO 변환 (Page 유지)
+```java
+Page<Member> page = memberRepository.findByAge(10, pageRequest);
+Page<MemberDto> dtoPage = page.map(m -> new MemberDto(m));
+```
+
+#### 📌 5. Hibernate 6의 Left Join 최적화 주의
+```java
+@Query("select m from Member m left join m.team t")
+Page<Member> findByAge(int age, Pageable pageable);
+```
+→ 조건이 없는 경우 Hibernate 6에서는 left join이 생략될 수 있음
+```sql
+select
+  m1_0.member_id,
+  m1_0.age,
+  m1_0.team_id,
+  m1_0.username
+from
+  member m1_0
+```
+
+
+---
+
+
+### 🧾 마무리
+- Spring Boot 3.x 이상에서는 Hibernate 6의 쿼리 최적화 동작을 이해하고 있어야 함
+- Page와 Slice의 사용 목적을 명확히 구분하여 사용
+- 조인이 많은 경우 Count 쿼리 성능 병목이 생길 수 있으므로, 쿼리 분리 전략을 적용할 것
+
+---
 
