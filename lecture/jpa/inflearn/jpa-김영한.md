@@ -1066,3 +1066,85 @@ public String list(
 - 1부터 시작하는 페이지 처리는 별도의 커스텀 Resolver로 직접 구현하는 방식이 정확함
 
 ---
+
+
+
+## 📅 2025-07-05 - 스프링 데이터 JPA 분석 : 구현체 분석
+
+### 💡 학습 주제
+
+- 스프링 데이터 JPA의 구현체 내부 동작 방식 이해
+- 새로운 엔티티 판단 방식과 성능 관련 고려 사항 정리
+
+---
+
+### 🧠 주요 개념 요약
+
+
+| 항목 | 설명 |
+|------|------|
+| **SimpleJpaRepository** | Spring Data JPA에서 제공하는 기본 공통 리포지토리 구현체 (`save`, `findAll`, `delete` 등 처리) |
+| **@Transactional** | 서비스 계층에서 트랜잭션이 없으면 Repository가 트랜잭션을 시작하며, 존재하면 전파받아 실행 |
+| **@Transactional(readOnly = true)** | 읽기 전용 트랜잭션 설정. 플러시 무시, 2차 캐시에 저장하지 않으며 읽기 성능 향상 |
+| **새로운 엔티티 판단** | `id == null` 또는 `id == 0` (Primitive 타입 시 고려)인 경우 새 엔티티로 간주 |
+| **merge() 단점** | 병합 시 DB를 먼저 조회하여 성능 저하 가능성이 있으며, 값이 없으면 새 엔티티로 인식 |
+| **@CreatedDate + Persistable** | `Persistable<T>`을 구현하면 `isNew()` 메서드를 통해 명확히 새 엔티티 여부 판단 가능 |
+
+---
+
+
+
+### 🧪 실습 코드
+
+
+#### 📌  1.  `SimpleJpaRepository` save 구현체 분석
+```java
+@Repository
+@Transactional(readOnly = true)
+public class SimpleJpaRepository<T, ID> {
+    
+    @Transactional
+    public <S extends T> S save(S entity) {
+        if (entityInformation.isNew(entity)) {
+            em.persist(entity);
+            return entity;
+        } else {
+            return em.merge(entity);
+        }
+    }
+}
+```
+
+
+#### 📌  2.  Persistable을 통한 새로운 엔티티 판단
+```java
+@Entity
+@EntityListeners(AuditingEntityListener.class)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
+public class Item implements Persistable<String> {
+
+    @Id
+    private String id;
+
+    @CreatedDate
+    private LocalDateTime createdDate;
+
+    public Item(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public boolean isNew() {
+        return createdDate == null;
+    }
+}
+```
+
+---
+### 🧾 마무리
+- Spring Data JPA는 내부적으로 persist/merge 여부를 판단하여 save 처리
+- Persistable과 @CreatedDate 조합은 비표준 ID 생성 전략에서도 유용
+- @Transactional(readOnly = true)는 쓰기 방지 및 성능 개선 효과가 있으므로 읽기 전용 API에 적극 활용
+- merge보다는 persist 기반 설계가 성능적으로 바람직하므로 ID 생성 전략을 고려한 판단 로직 구현이 중요함
+---
