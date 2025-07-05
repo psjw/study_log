@@ -804,11 +804,265 @@ Page<Member> findByUsername(String name, Pageable pageable);
 @Lock(LockModeType.PESSIMISTIC_WRITE)
 List<Member> findByUsername(String name);
 ```
+→ 실행 시 다음 쿼리와 유사한 SELECT ... FOR UPDATE가 수행됨
+
 
 ---
 ### 🧾 마무리
-- JPA Hint는  
--  N+1 문제를 해결하는 용도로 적합하며, 단순한 연관관계에 한해 사용하는 것이 바람직함
--  복잡한 연관 조회 및 조건이 필요한 경우에는 직접 JPQL과 fetch join을 명시하는 것이 안전하고 명확함
+- @QueryHints는 주로 읽기 전용(readOnly) 트랜잭션 최적화 시 사용되며, Hibernate에 내부적으로 전달됨
+-  @Lock은 동시성 문제를 피하기 위해 DB 락을 트랜잭션 레벨에서 설정할 수 있음
+-  페이지네이션 시 count 쿼리에도 힌트를 적용하려면 forCounting = true를 반드시 명시
+-  락이나 힌트는 기능은 간단하지만, 실제 적용 시 트랜잭션, 락 전략, 구현체 동작을 정확히 이해하고 있어야 함
+
+---
+
+## 📅 2025-07-05 - 확장 기능 : 사용자 정의 리포지토리 구현
+
+### 💡 학습 주제
+
+
+- Spring Data JPA에서 사용자 정의 리포지토리(Custom Repository) 구현 방식 이해
+- QueryDSL 적용 시 활용되는 패턴 학습
+
+
+---
+
+### 🧠 주요 개념 요약
+
+
+| 항목 | 설명 |
+|------|------|
+| **명명 규칙** | 기본적으로 `리포지토리 인터페이스명 + Impl`을 구현 클래스명으로 인식하여 자동 연결 |
+| **Interface 구성** | 사용자 정의 기능을 위해 별도의 인터페이스를 정의하고, 이를 리포지토리 인터페이스에 상속 |
+| **Impl 대신 다른 이름 사용** | `@EnableJpaRepositories` 또는 XML 설정을 통해 구현 클래스의 접미어(postfix)를 변경 가능 |
+
+---
+
+
+
+### 🧪 실습 코드
+
+#### 📌  1. Impl 대신 다른이름으로 변경
+
+```xml
+<repositories base-package="study.datajpa.repository"
+repository-impl-postfix="Impl" />
+```
+
+```java
+@EnableJpaRepositories(basePackages = "study.datajpa.repository",
+repositoryImplementationPostfix = "Impl")
+```
+
+#### 📌  2. 사용정자 정의 리포지토리 예제
+1.  사용자 정의 인터페이스 생성
+
+```java
+public interface MemberRepositoryCustom {
+    List<Member> findMemberCustom();
+}
+```
+
+2.  구현 클래스 작성
+```java
+@RequiredArgsConstructor
+public class MemberRepositoryImpl implements MemberRepositoryCustom {
+
+    private final EntityManager em;
+
+    @Override
+    public List<Member> findMemberCustom() {
+        return em.createQuery("select m from Member m", Member.class)
+                 .getResultList();
+    }
+}
+```
+
+3.  기존 리포지토리에 통합
+
+```java
+public interface MemberRepository 
+       extends JpaRepository<Member, Long>, 
+               MemberRepositoryCustom {
+}
+```
+---
+### 🧾 마무리
+- 커스텀 쿼리(QueryDSL 등)를 적용할 때 유용하게 사용하는 패턴
+- Spring Boot 2.x 이상에서는 Custom + Impl 방식 외에도 @EnableJpaRepositories 설정을 통해 유연하게 클래스명 지정이 가능함
+- 실무에서는 복잡한 조회 로직이나 성능 최적화가 필요한 쿼리를 사용자 정의 리포지토리로 분리하면 유지보수와 테스트가 용이함
+
+---
+
+
+
+## 📅 2025-07-05 - 확장 기능 : Auditing
+
+### 💡 학습 주제
+
+
+- 테이블에 공통으로 정의되는 필드 처리 방법
+- 등록일, 등록자, 수정일, 수정자 자동 처리
+
+
+---
+
+### 🧠 주요 개념 요약
+
+
+| 항목 | 설명 |
+|------|------|
+| **@EnableJpaAuditing** | Config 클래스에 설정하여 JPA Auditing 기능을 활성화 |
+| **@EntityListeners** | 엔티티에 `AuditingEntityListener`를 등록하여 이벤트 기반 처리 활성화 |
+| **@MappedSuperclass** | 엔티티가 공통 필드를 상속받도록 선언. 자식 엔티티에서 필드를 인식하게 함 |
+| **AuditorAware** | 현재 사용자를 반환하는 컴포넌트. 생성자(createdBy), 수정자(modifiedBy) 자동 주입에 필요 |
+| **BaseEntity vs BaseTimeEntity** | 날짜만 관리하는 `BaseTimeEntity`와 사용자 정보도 포함하는 `BaseEntity`로 역할을 분리하여 유연한 상속 가능 |
+
+
+
+
+---
+
+
+
+### 🧪 실습 코드
+
+
+#### 📌  1.  Auditing 예제
+1. BaseTimeEntity 생성
+
+```java
+@Getter
+@MappedSuperclass
+@EntityListeners(AuditingEntityListener.class)
+public class BaseTimeEntity {
+    @CreatedDate
+    @Column(updatable = false)
+    private LocalDateTime createdDate;
+    @LastModifiedDate
+    private LocalDateTime lastModifiedDate;
+}
+```
+
+2. BaseEntity 생성
+
+```java
+@Getter
+@MappedSuperclass
+public class BaseEntity extends BaseTimeEntity {
+    @CreatedBy
+    @Column(updatable = false)
+    private String createdBy;
+    @LastModifiedBy
+    private String lastModifiedBy;
+}
+```
+
+3. AuditorAware 및 @EnableJpaAuditing 설정
+
+```java
+@EnableJpaAuditing
+@SpringBootApplication
+public class DataJpaApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(DataJpaApplication.class, args);
+    }
+
+    @Bean
+    public AuditorAware<String> auditorProvider() {
+        // 실제 운영에서는 Spring Security 기반 사용자 정보 반환
+        return () -> Optional.of(UUID.randomUUID().toString());
+    }
+}
+```
+---
+### 🧾 마무리
+- 공통 필드(Audit) 관리는 코드 중복 제거 및 유지보수에 효과적임
+- BaseTimeEntity와 BaseEntity를 분리함으로써 유연한 설계가 가능
+- 실무에서는 @CreatedBy, @LastModifiedBy에 Spring Security의 사용자 정보를 연동하여 실 사용자 기반의 감사 로그를 남기는 것이 일반적임
+
+---
+
+
+## 📅 2025-07-05 - 확장 기능 : Web 확장
+
+### 💡 학습 주제
+
+- 도메인 클래스 컨버터의 이해와 실무 적용 방향
+- 웹 요청에서 `Pageable`을 통한 페이징 및 정렬 처리 방식 학습
+
+---
+
+### 🧠 주요 개념 요약
+
+
+| 항목 | 설명 |
+|------|------|
+| **도메인 클래스 컨버터** | HTTP 파라미터로 엔티티 객체를 직접 매핑. 실무에서는 엔티티 노출 대신 DTO 사용 권장 |
+| **Pageable** | 컨트롤러 파라미터로 페이징 정보 자동 주입 (page, size, sort 등) |
+| **페이징 요청 파라미터** | `page`는 0부터 시작, `size`는 한 페이지에 노출할 개수, `sort`는 정렬 필드와 방향 지정 가능 |
+| **글로벌 설정** | `application.yml` 또는 `application.properties`로 `default-page-size`, `max-page-size` 등을 설정 |
+| **@PageableDefault** | 메서드 단위에서 개별 `Pageable` 기본값 설정 가능 |
+| **@Qualifier** | 여러 개의 페이징 정보를 사용할 때 접두사로 구분 (예: `member_page`, `order_page`) |
+| **1부터 시작하는 페이지 처리** | `one-indexed-parameters` 옵션은 응답값 정확도 문제로 비권장. 직접 처리 클래스를 구현하는 것이 좋음 |
+
+
+---
+
+
+
+### 🧪 실습 코드
+
+
+#### 📌  1.  Pageable 예제
+1. Pageable 요청파라미터 예제
+
+```http
+/members?page=0&size=3&sort=id,desc&sort=username,desc
+```
+
+2. Pageable 글로벌 설정
+
+```properties
+spring.data.web.pageable.default-page-size=20   # 기본 페이지 크기
+spring.data.web.pageable.max-page-size=2000     # 최대 페이지 크기
+```
+
+3. Pageable 개별 설정
+
+```java
+@GetMapping("/members_page")
+public String list(
+    @PageableDefault(size = 12, sort = "username",
+                     direction = Sort.Direction.DESC)
+    Pageable pageable
+) {
+    // pageable.getPageNumber() 등 활용
+}
+```
+
+4. 다수 페이징 정보일 경우 sample URL
+
+```http
+/members?member_page=0&order_page=1
+```
+
+```java
+@GetMapping("/members")
+public String list(
+    @Qualifier("member") Pageable memberPageable,
+    @Qualifier("order") Pageable orderPageable
+) {
+    // 각각의 페이징 처리
+}
+```
+
+---
+### 🧾 마무리
+- Spring MVC에서 Pageable을 활용하면 별도 파라미터 매핑 없이 간단하게 페이징 처리 가능
+- 글로벌 설정과 @PageableDefault를 병행하면 일관성과 유연성을 모두 확보할 수 있음
+- 실무에서는 도메인 직접 노출보다는 DTO를 통해 계층 간 분리를 유지하는 것이 권장됨
+- 1부터 시작하는 페이지 처리는 별도의 커스텀 Resolver로 직접 구현하는 방식이 정확함
 
 ---
