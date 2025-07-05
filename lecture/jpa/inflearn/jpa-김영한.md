@@ -1148,3 +1148,109 @@ public class Item implements Persistable<String> {
 - @Transactional(readOnly = true)는 쓰기 방지 및 성능 개선 효과가 있으므로 읽기 전용 API에 적극 활용
 - merge보다는 persist 기반 설계가 성능적으로 바람직하므로 ID 생성 전략을 고려한 판단 로직 구현이 중요함
 ---
+
+
+
+
+## 📅 2025-07-05 - 나머지 기능들:  Specifications (명세), Query By Example, Projections, 네이티브 쿼리
+
+### 💡 학습 주제
+
+- Spring Data JPA에서 제공하는 동적 쿼리 기능 학습
+- 각 기능의 사용법 및 실무 적합성 분석
+
+---
+
+### 🧠 주요 개념 요약
+
+
+| 항목 | 설명 |
+|------|------|
+| **Specifications** | JPA Criteria 기반 명세 객체 조합. 가독성이 낮고 복잡하여 실무에서는 QueryDSL 권장 |
+| **Query by Example** | Example 객체와 Matcher로 동적 쿼리 구성. INNER JOIN만 가능하며 `=` 연산만 지원 |
+| **Projections** | 인터페이스 기반 필드 선택 조회. Root 엔티티가 아니면 최적화 어려움. Left Join으로 처리됨 |
+| **동적 Projections** | 파라미터로 Projection 타입을 받아 동적으로 조회 가능 |
+| **네이티브 쿼리** | `@Query(nativeQuery = true)` 사용. 동적 쿼리 불가능하며 문법 오류 검증이 불가능함 |
+
+---
+
+
+
+### 🧪 실습 코드
+
+
+#### 📌  1.   Specifications 예제
+```java
+// Probe 객체 구성
+Member member = new Member("m1");
+Team team = new Team("teamA");
+member.setTeam(team);
+
+Specification<Member> spec = 
+    MemberSpec.username("m1").and(MemberSpec.teamName("teamA"));
+
+List<Member> result = memberRepository.findAll(spec);
+
+// 명세 정의
+public static Specification<Member> username(String username) {
+    return (root, query, builder) ->
+        builder.equal(root.get("username"), username);
+}
+```
+
+
+#### 📌  2.  Query By Example 예제
+
+```java
+ExampleMatcher matcher = ExampleMatcher.matching()
+                                       .withIgnorePaths("age");
+
+Example<Member> example = Example.of(member, matcher);
+List<Member> result = memberRepository.findAll(example);
+```
+
+
+#### 📌  3.  Projections 예제
+- 조회할 엔티티의 필드를 getter 형식으로 지정하면 해당 필드만 선택해서 조회(Projection)
+```java
+public interface UsernameOnly {
+    String getUsername();
+}
+
+public interface MemberRepository extends JpaRepository<Member, Long> {
+    List<UsernameOnly> findProjectionsByUsername(String username);
+}
+
+```
+
+
+#### 📌  4. 동적 Projections 예제
+```java
+public interface MemberRepository extends JpaRepository<Member, Long> {
+    <T> List<T> findProjectionsByUsername(String username, Class<T> type);
+}
+
+// 사용
+List<UsernameOnly> result =
+    memberRepository.findProjectionsByUsername("m1", UsernameOnly.class);
+```
+
+
+#### 📌  5. 네이티브 쿼리 예제
+```java
+public interface MemberRepository extends JpaRepository<Member, Long> {
+    
+    @Query(value = "select * from member where username = ?", nativeQuery = true)
+    Member findByNativeQuery(String username);
+}
+}
+
+```
+
+---
+### 🧾 마무리
+- Specifications, Query by Example, Projections, 네이티브 쿼리는 공식적으로 지원되지만 실무에서는 대부분 QueryDSL이 대체
+- QueryDSL은 타입 안정성과 가독성, 복잡한 동적 조건 조합 등에서 유리함
+- Projections는 최적화 제약이 있으며, 네이티브 쿼리는 유지보수 및 동적 처리에 어려움이 많음
+- 기능 자체는 학습 가치가 있으나 실무에서는 QueryDSL 중심의 구현을 기본 전략으로 고려하는 것이 바람직
+---
