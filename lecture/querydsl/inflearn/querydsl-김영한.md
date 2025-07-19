@@ -374,3 +374,178 @@ String result = queryFactory
 
 ---
 
+
+
+
+## 📅 2025-07-19 - 중급문법
+
+### 💡 학습 주제
+
+- 중급 QueryDSL 문법 학습
+  - 프로젝션 이해 및 DTO 반환 방식
+  - 동적 쿼리 처리 방식
+  - 수정 및 삭제 벌크 연산 처리
+  - SQL Function 호출 방법
+
+---
+
+### 🧠 주요 개념 요약
+
+
+| 항목 | 설명 |
+|------|------|
+| **프로젝션** | select 대상 지정. 단일이면 단일 타입 반환, 복수면 `Tuple`, DTO 등으로 반환 |
+| **DTO 반환 방식** | `Projections.bean()` : setter 기반<br>`Projections.constructor()` : 생성자 기반<br>`Projections.fields()` : 필드 직접 접근 |
+| **별칭이 다를 경우** | `ExpressionUtils.as()` 또는 `.as("alias")`를 통해 명시적 별칭 설정 |
+| **동적 쿼리 처리** | `BooleanBuilder` 또는 `where()` 다중 파라미터 활용, null은 자동 무시됨 |
+| **수정·삭제 벌크 연산** | `add`, `multiply` 등 함수 제공. **실행 후 영속성 컨텍스트 초기화 필수** |
+| **SQL Function 호출** | `Expressions.stringTemplate()` 사용. ANSI 표준 함수는 내장되어 있음 |
+
+
+
+
+
+---
+
+
+
+### 🧪 실습 코드
+
+
+
+#### 📌 1. 프로젝션 예제
+
+```java
+// 단일 컬럼 조회
+List<String> result = queryFactory
+    .select(member.username)
+    .from(member)
+    .fetch();
+
+// 다중 컬럼 조회 - Tuple
+List<Tuple> result = queryFactory
+    .select(member.username, member.age)
+    .from(member)
+    .fetch();
+```
+
+
+#### 📌  2. DTO.반환
+
+```java
+// JPA - 생성자 기반 방식만 지원
+List<MemberDto> result = em.createQuery(
+    "select new study.querydsl.dto.MemberDto(m.username, m.age) " +
+    "from Member m", MemberDto.class)
+    .getResultList();
+
+// QueryDSL - setter 접근
+List<MemberDto> result = queryFactory
+    .select(Projections.bean(MemberDto.class,
+        member.username,
+        member.age))
+    .from(member)
+    .fetch();
+
+// 필드 접근 + 별칭
+List<MemberDto> result = queryFactory
+    .select(Projections.fields(MemberDto.class,
+        member.username,
+        ExpressionUtils.as(
+            JPAExpressions
+                .select(memberSub.age.max())
+                .from(memberSub),
+            "age")))
+    .from(member)
+    .fetch();
+
+// 생성자 접근
+List<MemberDto> result = queryFactory
+    .select(Projections.constructor(MemberDto.class,
+        member.username,
+        member.age))
+    .from(member)
+    .fetch();
+
+// @QueryProjection 활용 시
+// MemberDto.java
+public class MemberDto {
+    private String username;
+    private int age;
+
+    @QueryProjection
+    public MemberDto(String username, int age) {
+        this.username = username;
+        this.age = age;
+    }
+}
+
+// DTO 반환
+List<MemberDto> result = queryFactory
+    .select(new QMemberDto(member.username, member.age))
+    .from(member)
+    .fetch();
+```
+
+#### 📌  3.동적 쿼리 처리
+
+```java
+// 1. BooleanBuilder 사용
+BooleanBuilder builder = new BooleanBuilder();
+if (usernameCond != null) {
+    builder.and(member.username.eq(usernameCond));
+}
+if (ageCond != null) {
+    builder.and(member.age.eq(ageCond));
+}
+return queryFactory
+    .selectFrom(member)
+    .where(builder)
+    .fetch();
+
+// 2. where 절 다중 파라미터 활용
+return queryFactory
+    .selectFrom(member)
+    .where(usernameEq(usernameCond), ageEq(ageCond))
+    .fetch();
+
+private BooleanExpression usernameEq(String usernameCond) {
+    return usernameCond != null ? member.username.eq(usernameCond) : null;
+}
+private BooleanExpression ageEq(Integer ageCond) {
+    return ageCond != null ? member.age.eq(ageCond) : null;
+}
+```
+
+#### 📌  4.수정, 삭제 벌크 연산
+
+```java
+// 나이 1씩 증가
+long count = queryFactory
+    .update(member)
+    .set(member.age, member.age.add(1))
+    .execute();
+
+// 이후 반드시 영속성 컨텍스트 초기화 필요
+em.flush();
+em.clear();
+```
+
+
+#### 📌  5.SQL function 호출
+```java
+// username 내 'member' 문자열을 'M'으로 대체
+String result = queryFactory
+    .select(Expressions.stringTemplate(
+        "function('replace', {0}, {1}, {2})",
+        member.username, "member", "M"))
+    .from(member)
+    .fetchFirst();
+```
+
+---
+### 🧾 마무리
+- 실무에서 DTO 반환 시 성능과 명확성을 위해 @QueryProjection과 Projections.constructor()를 선호
+- 동적 쿼리 시 조건 누락을 막고 가독성을 높이기 위해 BooleanExpression 메서드 분리 권장
+- 벌크 연산 이후에는 꼭 em.flush() + em.clear() 호출할 것
+---
