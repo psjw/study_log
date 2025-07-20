@@ -549,3 +549,178 @@ String result = queryFactory
 - 동적 쿼리 시 조건 누락을 막고 가독성을 높이기 위해 BooleanExpression 메서드 분리 권장
 - 벌크 연산 이후에는 꼭 em.flush() + em.clear() 호출할 것
 ---
+
+
+
+## 📅 2025-07-20 - 실무활용
+
+### 💡 학습 주제
+
+- Spring Data JPA에서 사용자 정의 리포지토리를 활용한 실무 개발 전략
+  - 사용자 정의 리포지토리의 설계 및 구현 방식
+  - QueryDSL과 결합한 동적 쿼리 처리
+  - PageableExecutionUtils를 활용한 효율적인 페이징 처리
+  - 정렬(Sort) 기능의 한계와 실무적인 대응 방안
+
+---
+
+### 🧠 주요 개념 요약
+
+
+| 항목 | 설명 |
+|------|------|
+| **사용자 정의 리포지토리 사용법** | 1. 사용자 정의 리포지토리 인터페이스 작성<br>2. 사용자 정의 리포지토리 구현<br>3. Spring Data 리포지토리에서 사용자 정의 리포지토리 인터페이스 상속 |
+| **PageableExecutionUtils** | Spring Boot 2.6 이상부터는 `PageableExecutionUtils.getPage()`로 사용 (이전 버전은 패키지명이 다름) |
+| **fetchResults() / fetchCount()** | `.fetchResults()`는 count 쿼리와 content를 동시에 조회하지만 Spring Boot 2.6 이상에서는 deprecated 예정<br>→ 별도로 `.fetch()` 와 `.fetchCount()` 또는 `.fetchOne()` 조합 권장 |
+| **Spring Data 정렬** | 복잡한 정렬이 필요한 경우 Pageable의 Sort 사용이 제한적이므로 직접 정렬 조건을 파라미터로 받아 Querydsl에서 처리 |
+
+
+
+---
+
+
+### 🧪 실습 코드
+
+#### 📌 1. 사용자 정의 리파지토리 구성
+
+```text
+      +------------------+                  
+      |  JpaRepository   |                  
+      +------------------+                  
+             ▲                             
+             |                             
+   +--------------------------+   Extends  
+   |   MemberRepository       |-----------+
+   |   + findByUsername()     |           |
+   +--------------------------+           |
+                                          |
+                                          |
+   +----------------------------+         |
+   |   MemberRepositoryCustom   |<--------+
+   |   + search()               |         
+   +----------------------------+         
+             ▲                             
+             |                             
+   +----------------------------+         
+   |   MemberRepositoryImpl     |         
+   |   + search()               |         
+   +----------------------------+  
+```
+
+#### 📌 2. 사용자 정의 리파지토리 구현
+
+**[1] 사용자 정의 인터페이스 작성**
+
+```java
+public interface MemberRepositoryCustom {
+    List<MemberTeamDto> search(MemberSearchCondition condition);
+}
+```
+
+**[2] 사용자 정의 인터페이스 구현**
+
+```java
+public class MemberRepositoryImpl implements MemberRepositoryCustom {
+
+    private final JPAQueryFactory queryFactory;
+
+    public MemberRepositoryImpl(EntityManager em) {
+        this.queryFactory = new JPAQueryFactory(em);
+    }
+
+    @Override
+    public List<MemberTeamDto> search(MemberSearchCondition condition) {
+        // 구현 생략
+    }
+}
+```
+
+**[3] 스프링 데이터 리포지토리에 사용자 정의 인터페이스 상속**
+
+```java
+public interface MemberRepository extends JpaRepository<Member, Long>, MemberRepositoryCustom {
+}
+```
+
+
+#### 📌   3. Querydsl 페이징 연동
+
+**[1] 전체 카운트를 함께 조회하는 방법 (deprecated 예정)**
+```java
+QueryResults<MemberTeamDto> results = queryFactory
+    .select(new QMemberTeamDto(
+        member.id,
+        member.username,
+        member.age,
+        team.id,
+        team.name))
+    .from(member)
+    .leftJoin(member.team, team)
+    .where(
+        usernameEq(condition.getUsername()),
+        teamNameEq(condition.getTeamName()),
+        ageGoe(condition.getAgeGoe()),
+        ageLoe(condition.getAgeLoe()))
+    .offset(pageable.getOffset())
+    .limit(pageable.getPageSize())
+    .fetchResults();
+
+List<MemberTeamDto> content = results.getResults();
+long total = results.getTotal();
+return new PageImpl<>(content, pageable, total);
+```
+ > ✅ 주의: fetchResults()는 Spring Boot 2.6 이상에서 deprecated 예정입니다.
+
+**[2] 데이터와 카운트를 별도 조회하는 방법 (권장)**
+
+```java
+List<MemberTeamDto> content = queryFactory
+    .select(new QMemberTeamDto(
+        member.id,
+        member.username,
+        member.age,
+        team.id,
+        team.name))
+    .from(member)
+    .leftJoin(member.team, team)
+    .where(
+        usernameEq(condition.getUsername()),
+        teamNameEq(condition.getTeamName()),
+        ageGoe(condition.getAgeGoe()),
+        ageLoe(condition.getAgeLoe()))
+    .offset(pageable.getOffset())
+    .limit(pageable.getPageSize())
+    .fetch();
+
+long total = queryFactory
+    .select(member.count())
+    .from(member)
+    .leftJoin(member.team, team)
+    .where(
+        usernameEq(condition.getUsername()),
+        teamNameEq(condition.getTeamName()),
+        ageGoe(condition.getAgeGoe()),
+        ageLoe(condition.getAgeLoe()))
+    .fetchOne();
+
+return PageableExecutionUtils.getPage(content, pageable, () -> total);
+```
+
+#### 📌   4.  변경된 카운트 쿼리 방식 (Spring Boot 2.6 이상 기준)
+  
+```java
+Long totalCount = queryFactory
+    // .select(Wildcard.count) // select count(*)
+    .select(member.count())     // select count(member.id)
+    .from(member)
+    .fetchOne();
+```
+
+
+---
+### 🧾 마무리
+- 사용자 정의 리포지토리는 **확장성과 재사용성이 뛰어나며,** Querydsl과 결합 시 **강력한 동적 쿼리 기능**을 제공함.
+- 페이징 처리 시에는 **Spring Boot 최신 버전에 맞추어 .fetchResults() 대신 PageableExecutionUtils 사용이 권장**되지만, **정렬(Sort) 기능의 제약을 고려하여 추가적인 처리 로직이 필요**
+---
+
+
