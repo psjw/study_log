@@ -724,3 +724,159 @@ Long totalCount = queryFactory
 ---
 
 
+
+## 📅 2025-07-20 - 스프링 데이터 JPA가 제공하는 Querydsl 기능
+
+### 💡 학습 주제
+
+- Spring Data JPA에서 제공하는 QueryDSL 관련 기능 학습
+  - `QuerydslPredicateExecutor`
+  - Querydsl Web 통합
+  - `QuerydslRepositorySupport`
+  - 사용자 정의 Querydsl 지원 클래스 생성 및 확장
+
+---
+
+### 🧠 주요 개념 요약
+
+
+| 항목 | 설명 |
+|------|------|
+| **QuerydslPredicateExecutor** | 묵시적 조인은 가능하지만 **Left Join 불가능**. 클라이언트 코드가 Querydsl에 직접 의존하게 되며, **실무 적용에는 한계**가 명확함. 하지만 Pageable과 Sort는 기본적으로 지원됨. |
+| **Querydsl Web** | 컨트롤러 단에서 Querydsl Predicate를 직접 바인딩하여 조건을 처리할 수 있음. 단순한 조건만 처리 가능하며, 커스터마이징이 어렵고 **명시적이지 않음**. Controller가 Querydsl에 직접 의존. |
+| **QuerydslRepositorySupport** | `getQuerydsl().applyPagination()`을 통해 Spring Data의 Pageable을 Querydsl 쿼리에 적용 가능. 하지만 **Sort는 제대로 지원되지 않으며**, Querydsl 3.x에 맞춰져 있어 **4.x의 `JPAQueryFactory` 사용이 불가능**. |
+| **Querydsl 지원 클래스 직접 생성** | 위의 한계를 극복하기 위한 **직접 구현 클래스**. `JPAQueryFactory` 기반에서 동작하며, **페이징/카운트 쿼리 분리 지원**, `select()` 또는 `selectFrom()`부터 시작 가능. Spring Data JPA Sort도 지원. 실무에서 추천되는 방식. |
+
+
+
+
+---
+
+
+### 🧪 실습 코드
+
+
+#### 📌 1. `QuerydslPredicateExecutor` 적용 예시
+
+```java
+// 리포지토리 정의
+public interface MemberRepository extends JpaRepository<Member, Long>,
+    QuerydslPredicateExecutor<Member> {
+}
+
+// 사용 예시
+Iterable<Member> result = memberRepository.findAll(
+    member.age.between(10, 40)
+    .and(member.username.eq("member1"))
+);
+```
+
+
+#### 📌 2. 사용자 정의 지원 클래스: `Querydsl4RepositorySupport`
+
+
+```java
+@Repository
+public class Querydsl4RepositorySupport {
+
+    private final Class<?> domainClass;
+    private Querydsl querydsl;
+    private EntityManager entityManager;
+    private JPAQueryFactory queryFactory;
+
+    public Querydsl4RepositorySupport(Class<?> domainClass) {
+        Assert.notNull(domainClass, "Domain class must not be null!");
+        this.domainClass = domainClass;
+    }
+
+    @Autowired
+    public void setEntityManager(EntityManager entityManager) {
+        Assert.notNull(entityManager, "EntityManager must not be null!");
+        JpaEntityInformation<?, ?> entityInformation = JpaEntityInformationSupport.getEntityInformation(domainClass, entityManager);
+        SimpleEntityPathResolver resolver = SimpleEntityPathResolver.INSTANCE;
+        EntityPath<?> path = resolver.createPath(entityInformation.getJavaType());
+        this.entityManager = entityManager;
+        this.querydsl = new Querydsl(entityManager, new PathBuilder<>(path.getType(), path.getMetadata()));
+        this.queryFactory = new JPAQueryFactory(entityManager);
+    }
+
+    @PostConstruct
+    public void validate() {
+        Assert.notNull(entityManager, "EntityManager must not be null!");
+        Assert.notNull(querydsl, "Querydsl must not be null!");
+        Assert.notNull(queryFactory, "QueryFactory must not be null!");
+    }
+
+    protected JPAQueryFactory getQueryFactory() {
+        return queryFactory;
+    }
+
+    protected Querydsl getQuerydsl() {
+        return querydsl;
+    }
+
+    protected EntityManager getEntityManager() {
+        return entityManager;
+    }
+
+    protected <T> JPAQuery<T> select(Expression<T> expr) {
+        return getQueryFactory().select(expr);
+    }
+
+    protected <T> JPAQuery<T> selectFrom(EntityPath<T> from) {
+        return getQueryFactory().selectFrom(from);
+    }
+
+    protected <T> Page<T> applyPagination(Pageable pageable, Function<JPAQueryFactory, JPAQuery<?>> contentQuery) {
+        JPAQuery<?> query = contentQuery.apply(getQueryFactory());
+        List<T> content = getQuerydsl().applyPagination(pageable, query).fetch();
+        return PageableExecutionUtils.getPage(content, pageable, query::fetchCount);
+    }
+
+    protected <T> Page<T> applyPagination(Pageable pageable,
+                                          Function<JPAQueryFactory, JPAQuery<?>> contentQuery,
+                                          Function<JPAQueryFactory, JPAQuery<?>> countQuery) {
+        JPAQuery<?> content = contentQuery.apply(getQueryFactory());
+        List<T> result = getQuerydsl().applyPagination(pageable, content).fetch();
+        JPAQuery<?> count = countQuery.apply(getQueryFactory());
+        return PageableExecutionUtils.getPage(result, pageable, count::fetchCount);
+    }
+}
+```
+
+#### 📌 3. **Querydsl4RepositorySupport** 사용 예제
+
+
+```java
+public Page<Member> applyPagination2(MemberSearchCondition condition, Pageable pageable) {
+    return applyPagination(
+        pageable,
+        queryFactory -> queryFactory
+            .selectFrom(member)
+            .leftJoin(member.team, team)
+            .where(
+                usernameEq(condition.getUsername()),
+                teamNameEq(condition.getTeamName()),
+                ageGoe(condition.getAgeGoe()),
+                ageLoe(condition.getAgeLoe())
+            ),
+        countFactory -> countFactory
+            .select(member.id)
+            .from(member)
+            .where(
+                usernameEq(condition.getUsername()),
+                teamNameEq(condition.getTeamName()),
+                ageGoe(condition.getAgeGoe()),
+                ageLoe(condition.getAgeLoe())
+            )
+    );
+}
+```
+
+
+---
+### 🧾 마무리
+- Spring Data JPA가 제공하는 기본 Querydsl 기능은 간단한 조건 처리에는 유용하지만, **복잡한 실무 요건을 만족하기에는 한계**
+- QuerydslRepositorySupport는 기본 지원을 제공하지만 **Sort 미지원, JPAQueryFactory 미적용** 등의 문제가 존재
+- 실무에서는 Querydsl4RepositorySupport와 같은 **직접 구현한 지원 클래스를 통해 페이징, 정렬, 카운트 쿼리 분리 등을 세밀하게 제어**하는 방식이 권장
+---
