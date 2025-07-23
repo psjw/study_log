@@ -326,3 +326,189 @@ sequenceDiagram
 
 ---
 
+
+
+## 📅 2025-07-23 - Reactive Stream - 함수형 프로그래밍이란?
+
+### 💡 학습 주제
+
+- 함수형 프로그래밍에 대한 이해
+- 함수형 프로그래밍을 통한 Reactive Stream 작성
+
+
+### 🧠 주요 개념 요약
+
+
+| 항목 | 설명 |
+|------|------|
+| **함수형 프로그래밍** | 코드를 선언적이고 간결하게 표현하기 위한 방식으로, 함수를 객체처럼 다루는 것이 핵심입니다. |
+| **Java에서 함수는 객체?** | Java 8부터 `Function`, `Consumer`, `Supplier` 등의 함수형 인터페이스를 통해 함수도 객체로 전달 가능합니다. |
+| **리액티브 스트림** | 일반 Stream처럼 종결자 없이는 실행되지 않으며, `subscribe`, `publish` 등이 종결자 역할을 합니다. |
+| **Subscriber-Publisher 패턴** | `subscribe()`를 통해 데이터가 흐르기 시작하며, publisher는 데이터를 방출하고 subscriber는 이를 소비합니다. |
+| **Controller는 subscribe 없어도 되는가?** | Spring WebFlux에서는 내부적으로 Netty의 이벤트 루프 스레드에서 자동 구독되므로 subscribe 호출이 필요 없습니다. 테스트 코드는 명시적 subscribe 필요. |
+
+
+### 🆚 함수형 프로그래밍 vs 리액티브 스트림
+
+#### 📌 기본 코드 (명령형 스타일)
+```java
+List<Integer> sink = new ArrayList<>();
+for (int i = 1; i < 10; i++) {
+    sink.add(i);
+}
+
+for (int i = 0; i < sink.size(); i++) {
+    System.out.println(sink.get(i));
+}
+```
+
+#### 📌 개선 요구사항
+
+- 모든 변수에 *4 연산 수행
+- 4의 배수만 필터링
+
+
+#### ✅ 명령형 → 함수형으로 전환
+
+##### 🎯 1. *4 연산 - 명령형 vs 함수형
+
+- 기존 코드
+```java
+List<Integer> newSink1 = new ArrayList<>();
+for (int i = 0; i <= 8; i++) {
+    newSink1.add(sink.get(i) * 4);
+}
+sink = newSink1;
+```
+- 함수형 변경
+```java
+sink = map(sink, data -> data * 4);
+
+private List<Integer> map(List<Integer> sink, Function<Integer, Integer> mapper) {
+    List<Integer> result = new ArrayList<>();
+    for (Integer item : sink) {
+        result.add(mapper.apply(item));
+    }
+    return result;
+}
+```
+
+##### 🎯 2. 필터링 - 명령형 vs 함수형
+
+- 기존코드
+
+```java
+List<Integer> newSink2 = new ArrayList<>();
+for (int i = 0; i <= 8; i++) {
+    if (sink.get(i) % 4 == 0) {
+        newSink2.add(sink.get(i));
+    }
+}
+sink = newSink2;
+```
+- 함수형 변경
+
+```java
+sink = filter(sink, data -> data % 4 == 0);
+
+private List<Integer> filter(List<Integer> sink, Predicate<Integer> predicate) {
+    List<Integer> result = new ArrayList<>();
+    for (Integer item : sink) {
+        if (predicate.test(item)) {
+            result.add(item);
+        }
+    }
+    return result;
+}
+
+```
+
+##### 🎯 3. 출력 - 명령형 vs 함수형
+
+- 기존코드
+```java
+for (int i = 0; i < sink.size(); i++) {
+    System.out.println(sink.get(i));
+}
+```
+- 함수형 변경
+
+```java
+print(sink, System.out::println);
+
+private void print(List<Integer> sink, Consumer<Integer> printer) {
+    for (Integer item : sink) {
+        printer.accept(item);
+    }
+}
+```
+
+#### 🔄 Stream API 활용 (람다 기반)
+
+- 출력부분 변경
+```java
+IntStream.rangeClosed(1, 9)
+         .boxed()
+         .map(data -> data * 4)
+         .filter(data -> data % 4 == 0)
+         .forEach(System.out::println);
+```
+
+#### ⚡ Reactive Stream 활용
+
+```java
+Flux.fromIterable(IntStream.rangeClosed(1, 9).boxed().toList())
+    .map(data -> data * 4)
+    .filter(data -> data % 4 == 0)
+    .subscribe(System.out::println);
+```
+
+
+1. Reactive Stream으로 변경
+
+```java
+Flux.fromIterable(IntStream.rangeClosed(1,9).boxed().toList())
+     .map(data -> data*4)
+     .filter(data -> data % 4 ==0)
+     .subscribe(data -> System.out.println(data));
+```
+
+---
+
+### 🔎 비동기 핵심 포인트
+
+1. **함수형 프로그래밍은 함수를 객체처럼 다루며, 선언적 코드 스타일을 가능하게 함**  
+2. **Flux, Mono는 Stream처럼 중간 연산자(Operator)를 체이닝할 수 있음**  
+3. **Flux는 subscribe()가 호출되어야 실행됨 (Lazy Evaluation)**  
+4. **Spring WebFlux는 Controller 내부에서 자동으로 구독을 수행 (Netty 이벤트 루프)**
+
+---
+
+
+### 🔁 비동기 흐름 예시
+```java
+public Flux<Integer> example(){
+    return Flux.range(1, 9)
+               .map(n -> n * 2)
+               .filter(n -> n % 4 == 0);
+}
+```
+
+- 위 코드는 실행되지 않음 (lazy)
+- Controller가 있거나 subscribe 호출 시 실행됨
+- Netty 이벤트 루프가 결과 전송
+- 작업 완료후 Netty 복귀
+
+
+
+
+---
+### 🧾 마무리
+
+
+- 함수형 프로그래밍은 선언적이고 유연한 코드 구성을 도움
+- 리액티브 스트림은 함수형 패턴을 기반으로 비동기 데이터 흐름을 구현
+- WebFlux는 subscribe 없이도 동작하며, 테스트 환경에선 명시적 구독 필요.
+
+---
+
