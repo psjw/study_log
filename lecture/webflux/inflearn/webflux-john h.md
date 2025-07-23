@@ -512,3 +512,108 @@ public Flux<Integer> example(){
 
 ---
 
+
+
+## 📅 2025-07-23 - WebFlux의 Subscriber - Publisher 패턴
+
+### 💡 학습 주제
+
+- Subscriber-Publisher 패턴의 동작 원리 이해
+- 블로킹 회피를 위한 스레드 제어 방식 학습
+
+
+### 🧠 주요 개념 요약
+
+
+| 항목 | 설명 |
+|------|------|
+| **Publisher** | 데이터를 발행하는 주체 |
+| **Subscriber** | 데이터를 구독하고 소비하는 주체 |
+| **subscribe()** | 데이터 스트림 구독을 시작하는 트리거 |
+| **publish()** | 데이터를 실제로 발행하는 동작 (주로 Hot Sequence에서 사용) |
+| **Scheduler** | 별도의 스레드를 할당하여 비동기적으로 작업을 수행하게 하는 도구 |
+| **Flux 구독 시** | `subscribe()`가 호출되어야 데이터 흐름이 시작됨 |
+| **스레드 1개만으로 블로킹 회피 가능?** | 불가능. flatMap 사용으로도 회피할 수 없음 |
+| **블로킹 회피 방법** | OS 위임 (ex: 커널 이벤트 큐) 또는 Reactor의 `Scheduler`로 별도 스레드 할당 |
+
+
+## 🧩 subscribeOn vs publishOn
+
+| 연산자 | 역할 |
+|--------|------|
+| **subscribeOn** | Publisher 측 데이터 생성이 실행되는 스레드를 지정 |
+| **publishOn** | Subscriber 측 데이터 처리 스레드를 지정 (스트리밍에 적합) |
+
+
+## 🔥 콜드 시퀀스 vs 핫 시퀀스
+
+| 구분 | 설명 |
+|------|------|
+| **Cold Sequence** | 구독자가 있어야 데이터 발행 시작 (Flux, Mono 기본) |
+| **Hot Sequence** | 구독자 유무와 관계없이 발행 지속 (ex: `publish()`, 실시간 스트리밍) |
+
+
+
+
+### 🧪 실습 코드
+
+#### 📌 1. 스케줄러를 활용한 블로킹 회피
+
+```java
+Flux<Integer> intFlux = Flux.<Integer>create(sink -> {
+    for (int i = 1; i < 10; i++) {
+        try {
+            Thread.sleep(500); // blocking operation
+        } catch (InterruptedException e) {
+            // 생략
+        }
+        sink.next(i);
+    }
+    sink.complete();
+}).subscribeOn(Schedulers.boundedElastic()); // 별도 스레드 할당
+
+intFlux.subscribe(data -> {
+    System.out.println("스레드 이름: " + Thread.currentThread().getName());
+    System.out.println("WebFlux 구독 데이터: " + data);
+});
+
+// 메인 스레드 종료 방지용 sleep
+try {
+    Thread.sleep(5000);
+} catch (InterruptedException e) {
+    throw new RuntimeException(e);
+}
+```
+>✅ Schedulers.boundedElastic()은 I/O blocking이 허용되는 스레드를 별도로 제공합니다.
+
+
+
+---
+
+### 🔎 Subscriber-Publisher 핵심 포인트
+
+1. **Flux, Mono는 데이터를 담고 있는 것이 아니라, 함수형 정의만 포함**  
+2. **구독을 해야 함수가 실행되며, 그제야 데이터가 생성됨**  
+3. **단일 스레드에서는 아무리 연산자를 조합해도 블로킹 회피 불가능**  
+4. **스케쥴러를 통해 별도의 스레드를 명시적으로 배정해야 블로킹 처리 가능**
+
+
+---
+
+
+### 📡 WebFlux의 동작 흐름 요약
+
+1.	Controller에서 Flux 또는 Mono 반환
+2.	WebFlux 내부에서 자동으로 subscribe() 수행
+3.	Netty의 이벤트 루프가 응답 데이터를 비동기적으로 처리하여 클라이언트로 전송
+
+---
+### 🧾 마무리
+
+
+- Subscriber-Publisher 패턴은 리액티브 스트림의 핵심 동작 구조
+- subscribe 없이 Flux가 동작하지 않으며, 스케줄러는 블로킹 회피를 위한 필수 구성요소
+- subscribeOn은 데이터 생성 시점, publishOn은 처리 시점의 스레드를 제어
+
+---
+
