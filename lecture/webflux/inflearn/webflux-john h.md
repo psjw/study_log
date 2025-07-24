@@ -642,13 +642,7 @@ try {
 | **Attachment** | 이벤트에 등록된 사용자 정의 콜백 함수 또는 핸들러 객체 |
 
 
-
-
-
-
-
-
-## 📡 Netty 이벤트 루프의 동작 원리
+### 📡 Netty 이벤트 루프의 동작 원리
 
 > 💡 Netty는 이벤트 루프 기반 구조를 통해 **완전한 논블로킹 서버**를 구현합니다.
 
@@ -728,5 +722,140 @@ while (true) {
 - Netty의 이벤트 루프 패턴은 고성능 서버의 핵심 기반 기술
 - WebFlux는 이 구조를 활용하여 효율적이고 반응성 높은 비동기 처리를 지원
 - 스레드는 처리 대신 이벤트 감지/콜백 실행만 담당하며, 모든 IO는 OS가 주도
+
+---
+
+
+
+
+
+
+## 📅 2025-07-23 - WebFlux는 Netty와 어떻게 통합될까?
+
+### 💡 학습 주제
+
+- WebFlux와 Netty가 통합되는 구조 이해
+- Scheduler 사용 시 발생하는 스레드 변경 문제와 해결 방식 습득
+- 기본적인 요청 처리 및 응답 흐름 파악
+
+
+### 🧠 주요 개념 요약
+
+
+| 항목 | 설명 |
+|------|------|
+| **응답은 누가 처리하나?** | Flux/Mono가 Scheduler를 통해 별도 스레드에서 처리되면, 해당 스레드가 응답까지 시도할 수 있음 |
+| **문제 상황** | Netty의 응답 버퍼인 ByteBuffer는 스레드 세이프하지 않아, 이벤트 루프 외부에서 직접 접근하면 문제가 발생 |
+| **해결 방안** | 응답 쓰기 작업이 Netty 이벤트 루프 스레드가 아닐 경우, 작업을 이벤트 루프 큐에 등록하여 안전하게 처리 |
+| **핵심 API** | `AbstractChannelHandlerContext.write()` → 이벤트 루프 스레드에 write task 등록 |
+| **외부 API 처리 방식** | WebClient는 논블로킹 방식으로 외부 API 호출을 처리하며, OS 대기 기반이므로 이벤트 루프는 블로킹되지 않음 |
+
+
+### 📡 Scheduler 사용 시 흐름
+
+#### ✅ 1. 스레드 변경이 없는 경우
+
+- Read 이벤트를 처리한 Netty 이벤트 루프 스레드가 그대로 응답까지 처리
+
+![image](etc/eventloop1.png)
+
+#### ✅ 2. 스레드 변경이 감지된 경우
+
+- 로직 처리 중 스레드가 변경되면, 응답 처리는 반드시 원래 이벤트 루프 스레드에서 마무리되어야 함(동시성 문제)
+
+![image](etc/eventloop2.png)
+
+> ByteBuffer는 Netty 이벤트 루프 스레드만이 안전하게 접근할 수 있음
+
+```text
+스레드1  : "안녕하세요"  → 
+                     [ByteBuffer] : 안녕하세요반갑습니다
+스레드2  : "반갑습니다"  →
+```
+
+✅ 3. 외부 API 호출을 포함한 흐름 (WebClient 사용)
+	•	외부 API I/O도 Netty 이벤트 루프 기반으로 처리되며, 블로킹 없이 작업이 계속된다
+
+ ![image](etc/eventloop3.png)
+
+### 🧪 실습 코드
+
+#### 📌 1. AbstractChannelHandlerContext.write(...)
+> inEventLoop()가 false이면 executor의 작업 큐에 등록하여 Netty 이벤트 루프 스레드가 처리하게 됨.
+
+```java
+// 다음 Outbound 핸들러의 실행기를 가져옴 (보통 이벤트 루프 executor)
+EventExecutor executor = next.executor();
+
+if (executor.inEventLoop()) { 
+    // 현재 코드가 실행 중인 스레드가 이벤트 루프 스레드라면 (inEventLoop == true)
+    // → 즉시 invoke 메서드로 메시지 전송 처리
+
+    if (flush) {
+        // flush가 true이면, write 후 곧바로 flush까지 수행
+        // 즉시 데이터를 클라이언트로 방출
+        next.invokeWriteAndFlush(m, promise);
+    } else {
+        // flush가 false이면, write만 수행하고 flush는 이후에 따로 호출됨
+        next.invokeWrite(m, promise);
+    }
+
+} else {
+    // 현재 스레드가 이벤트 루프가 아닌 외부 스레드인 경우
+    // → 직접 처리하면 ByteBuffer를 unsafe하게 접근할 수 있으므로 반드시 이벤트 루프에게 위임
+
+    // Write 작업을 Runnable(Task)로 감쌈 → 이벤트 루프 큐에 등록
+    WriteTask task = AbstractChannelHandlerContext.WriteTask
+                            .newInstance(next, m, promise, flush);
+
+    // safeExecute: executor의 작업 큐에 task를 등록
+    if (!safeExecute(executor, task, promise, m, !flush)) {
+        // 만약 작업 등록에 실패하면 task 취소 및 예외 상태 설정
+        task.cancel();
+    }
+}
+```
+### 🧩 RestTemplate vs WebClient
+
+| 항목| RestTemplate | WebClient|
+|:-:|-|-|
+| 방식 | 블로킹 | 논블로킹 |
+| 스레드 필요 | 별도 스레드 필요(Scheduler) | 없음 (OS 대기 + Netty) |
+| 성능 | 스레드 자원 소비 많음 | 자원 효율적 |
+| I/O 대기 처리 | 별도 스레드가 대기 | OS 레벨 비동기 I/O 처리 |
+
+
+### 🔥 WebClinet 요청흐름
+
+1.	Netty가 클라이언트 요청을 수락 (Accept 이벤트)
+2.	Read 이벤트 발생 → ByteBuf에서 요청을 읽음
+3.	WebFlux가 이를 감지하고 Mono 또는 Flux를 구독
+4.	비즈니스 로직 처리 (Handler → Controller → Service)
+5.	응답 데이터를 이벤트 루프 스레드가 클라이언트에 전달
+
+### 🌐 WebClient 흐름 요약
+
+1.	WebClient가 외부 API에 논블로킹 요청 전송
+2.	요청 I/O는 OS가 처리하고 Netty는 블로킹되지 않음
+3.	응답 도착 시 Netty 이벤트 루프가 콜백을 실행
+4.	결과 데이터는 Flux/Mono로 애플리케이션에 전달됨
+
+
+---
+
+### 🔎 핵심 포인트
+
+-	**응답은 반드시 Netty 이벤트 루프 스레드에서 수행**
+-	**스레드가 변경된 경우에도 write 작업은 반드시 다시 이벤트 루프로 복귀해야 함**
+-	**WebClient는 완전한 논블로킹 방식으로 외부 API 호출이 가능**
+-	**RestTemplate + Scheduler 방식은 효율이 떨어짐**
+
+
+---
+### 🧾 마무리
+
+- Netty의 이벤트 루프는 고성능 비동기 서버의 핵심 구조
+- WebFlux는 이 구조 위에서 Reactor를 활용해 논블로킹 스트림 처리 구현
+- 모든 I/O는 OS가 주도하며, Netty는 이벤트 감지와 콜백 실행만을 담당
 
 ---
