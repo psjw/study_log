@@ -1,0 +1,242 @@
+{
+  "main": {
+    "id": "5b87d11931764053",
+    "type": "split",
+    "children": [
+      {
+        "id": "5b2cb3922342ac26",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "6542f60711e56b6a",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "lecture/webflux/inflearn/webflux-john h.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "webflux-john h"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "30c1bfd6c8312439",
+    "type": "split",
+    "children": [
+      {
+        "id": "8fdd30f1f3dea938",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "00ea4cae71ff9e76",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "0e47ce46795ef89e",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "검색"
+            }
+          },
+          {
+            "id": "a4aaebb6f05aacdf",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "북마크"
+            }
+          },
+          {
+            "id": "b23acca1e6f131cf",
+            "type": "leaf",
+            "state": {
+              "type": "mk-path-view",
+              "state": {},
+              "icon": "layout-grid",
+              "title": "Navigator"
+            }
+          }
+        ],
+        "currentTab": 3
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "6003d26addbce1ec",
+    "type": "split",
+    "children": [
+      {
+        "id": "95bb48d68597feae",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "ca3ebd7a66b2ad39",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "docs/webflux/inflearn/webflux-john h.pdf",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "webflux-john h 의 백링크"
+            }
+          },
+          {
+            "id": "81e4717658e52d07",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "docs/webflux/inflearn/webflux-john h.pdf",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "webflux-john h 의 나가는 링크"
+            }
+          },
+          {
+            "id": "bdb8d46feb5e4d61",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "태그"
+            }
+          },
+          {
+            "id": "a0b12bfc74185104",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "docs/webflux/inflearn/webflux-john h.pdf",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "webflux-john h 의 개요"
+            }
+          },
+          {
+            "id": "76e6bcd11872aaa9",
+            "type": "leaf",
+            "state": {
+              "type": "review-queue-list-view",
+              "state": {},
+              "icon": "SpacedRepIcon",
+              "title": "Notes Review Queue"
+            }
+          },
+          {
+            "id": "825da449140af65c",
+            "type": "leaf",
+            "state": {
+              "type": "mermaid-toolbar-view",
+              "state": {},
+              "icon": "trident-custom",
+              "title": "Mermaid Toolbar"
+            }
+          }
+        ],
+        "currentTab": 5
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "mermaid-tools:Open Mermaid Toolbar": false,
+      "table-editor-obsidian:Advanced Tables Toolbar": false,
+      "obsidian-spaced-repetition:Review flashcards": false,
+      "obsidian-excalidraw-plugin:New drawing": false,
+      "flashcards-obsidian:Generate flashcards": false
+    }
+  },
+  "active": "6542f60711e56b6a",
+  "lastOpenFiles": [
+    "webflux-john h.pdf",
+    "lecture/webflux/inflearn/webflux-john h.md",
+    "lecture/jpa/inflearn/jpa-김영한.md",
+    "lecture/querydsl/inflearn/querydsl-김영한.md",
+    "flashcards/webflux.md",
+    "flashcards/review-dashbord.md",
+    "lecture/webflux/inflearn/etc/eventloop1.excalidraw.md",
+    "lecture/webflux/inflearn/etc/eventloop1.drawio",
+    "Excalidraw/Excalidraw.md",
+    "Excalidraw/Drawing 2025-07-26 18.00.29.excalidraw.md",
+    "Excalidraw",
+    "Excalidraw/Untitled.md",
+    "Excalidraw/Drawing 2025-07-26 16.34.25.excalidraw.md",
+    "lecture/webflux/inflearn/etc/eventloop1.png",
+    "lecture/webflux/inflearn/etc/eventloop3.png",
+    "Tags",
+    "Vault.md",
+    "Untitled.canvas",
+    "flashcards/webflux",
+    "flashcards",
+    "lecture/webflux/inflearn/flashcards",
+    "lecture/webflux/inflearn/aaa.md",
+    "lecture/webflux/inflearn/webflux-john h.pdf",
+    "lecture/Untitled.md",
+    "theory/jvm/jvm-gc-theory.md",
+    "theory/cs/Instruction_cycle.md",
+    "theory/jpa/02-entity-mapping-basics.md",
+    "theory/jpa/01-introduction-to-jpa.md",
+    "docs/webflux/inflearn/webflux-john h.pdf",
+    "docs/webflux/inflearn/무제.md",
+    "docs/querydsl/inflearn/querydsl-김영한.pdf"
+  ]
+}
