@@ -53,7 +53,7 @@
 
 ### 4. 실습 코드
 
-#### 4.1 전 통적 동기 방식
+#### 4.1 전통적 동기 방식
 ```java
 List<Integer> sink = new ArrayList<>();
 for (int i = 1; i < 10; i++) {
@@ -119,8 +119,7 @@ Flux.create(sink -> {
 | **Thread**           | 하나의 작업 흐름을 실행하는 단위. 애플리케이션의 코드 흐름을 수행       |
 | **Thread의 일반 흐름**    | 사용자 요청 → CPU 자원 할당 → 웹서버 → 코드 실행 → 사용자에게 응답 |
 | **Tomcat Thread 흐름** | 모든 작업을 요청당 할당된 스레드가 순차적으로 직접 수행             |
-| **Netty Thread 흐름**  | 소수의 스레드가 이벤트 루프 기반으로 동작하며, 블로킹 I/O는 OS에 위임  ||
-
+| **Netty Thread 흐름**  | 소수의 스레드가 이벤트 루프 기반으로 동작하며, 블로킹 I/O는 OS에 위임  |
 ### 3. Tomcat Thread 처리 순서도
 
 ```mermaid

@@ -7,17 +7,3 @@ where review-due <= date(today)
 sort review-due asc
 ```
 
-
-```dataviewjs
-const pages = dv.pages('"flashcards"');
-
-const total = pages.length;
-
-const due = pages.where(p => p["review-due"] <= dv.date("today")).length;
-
-const percent = Math.round((due / total) * 100);
-
-dv.paragraph(`📊 복습 진행률: ${percent}%`);
-
-dv.paragraph(`<progress value="${percent}" max="100"></progress>`);
-```
