@@ -50,7 +50,10 @@
     "//flashcards",
     "//lecture",
     "//lecture/lecture/querydsl",
-    "//lecture/lecture/querydsl/lecture/querydsl/inflearn"
+    "//lecture/lecture/querydsl/lecture/querydsl/inflearn",
+    "//algorithm",
+    "//algorithm/algorithm/practice",
+    "//algorithm/algorithm/practice/algorithm/practice/2025-07"
   ],
   "expandFolderOnClick": true,
   "spacesFolder": "Tags",

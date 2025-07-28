@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "flashcards/webflux.md",
+                "file": "algorithm/practice/2025-07/2025-07-28.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "webflux"
+              "title": "2025-07-28"
             }
           }
         ]
@@ -207,8 +207,13 @@
   },
   "active": "6542f60711e56b6a",
   "lastOpenFiles": [
-    "lecture/webflux/inflearn/webflux-john h.md",
+    "algorithm/practice/2025-07/2025-07-23.md",
+    "algorithm/practice/2025-07/2025-07-28.md",
+    "algorithm/practice/2025-07/2025-07-22.md",
+    "algorithm/practice/2025-07/.md",
+    "algorithm/practice/2025-07/2025-07-08.md",
     "flashcards/webflux.md",
+    "lecture/webflux/inflearn/webflux-john h.md",
     "flashcards/review-dashbord.md",
     "lecture/jpa/inflearn/jpa-김영한.md",
     "lecture/querydsl/inflearn/querydsl-김영한.md",
