@@ -1,7 +1,8 @@
 {
   "settings": {
     "flashcardTags": [
-      "#flashcards"
+      "#flashcards",
+      "#webflux"
     ],
     "convertFoldersToDecks": false,
     "burySiblingCards": false,

@@ -562,7 +562,7 @@ while (true) {
 | :----: | --------------------------------------- |
 |  1단계   | Controller에서 Flux 또는 Mono 반환            |
 |  2단계   | Spring WebFlux 내부적으로 subscribe() 수행     |
-|  3단계   | Netty 이벤트 루프가 해당 비동기 응답을 감지 후 클라이언트에 전송 ||
+|  3단계   | Netty 이벤트 루프가 해당 비동기 응답을 감지 후 클라이언트에 전송 |
 ### 9. 마무리
 - Netty의 이벤트 루프 패턴은 고성능 서버의 핵심 기반 기술
 - WebFlux는 이 구조를 활용하여 효율적이고 반응성 높은 비동기 처리를 지원
@@ -584,7 +584,7 @@ while (true) {
 | **문제 상황**        | Netty의 응답 버퍼인 ByteBuffer는 스레드 세이프하지 않아, 이벤트 루프 외부에서 직접 접근하면 문제가 발생  |
 | **해결 방안**        | 응답 쓰기 작업이 Netty 이벤트 루프 스레드가 아닐 경우, 작업을 이벤트 루프 큐에 등록하여 안전하게 처리       |
 | **핵심 API**       | `AbstractChannelHandlerContext.write()` → 이벤트 루프 스레드에 write task 등록 |
-| **외부 API 처리 방식** | WebClient는 논블로킹 방식으로 외부 API 호출을 처리하며, OS 대기 기반이므로 이벤트 루프는 블로킹되지 않음  ||
+| **외부 API 처리 방식** | WebClient는 논블로킹 방식으로 외부 API 호출을 처리하며, OS 대기 기반이므로 이벤트 루프는 블로킹되지 않음  |
 
 ### 3. Scheduler 사용 시 흐름
 
@@ -677,7 +677,7 @@ if (executor.inEventLoop()) {
 
 ---
 
-## 2025-07-24 -WebFlux에서 어떻게 블로킹을 효율적으로 처리할 수 있을까?
+## 2025-07-24 - WebFlux에서 어떻게 블로킹을 효율적으로 처리할 수 있을까?
 
 ### 1. 학습 주제
 - WebFlux에서 블로킹을 피하기 위한 구조와 원리 이해  
@@ -689,14 +689,14 @@ if (executor.inEventLoop()) {
 | **리액티브 시스템의 철학**      | 컨텍스트 스위치 비용을 줄이고 스레드 수를 최소화하여 처리량과 응답성을 극대화                    |
 | **Scheduler 사용의 비효율** | 요청을 Netty 이벤트 루프 스레드가 받고, 이후 Scheduler 스레드로 이동하면 블로킹 발생 가능성 증가 |
 | **OS 레벨 대기로 해결**      | Netty가 OS에 블로킹 I/O를 위임하고, 완료 시 이벤트 루프 스레드에서 콜백 처리              |
-| **OS 대기 기반 라이브러리**    | R2DBC, WebClient 등은 이벤트 루프를 유지하면서도 블로킹 없이 I/O를 처리함             ||
+| **OS 대기 기반 라이브러리**    | R2DBC, WebClient 등은 이벤트 루프를 유지하면서도 블로킹 없이 I/O를 처리함             |
 
 ### 3. Netty 기반 비동기 라이브러리 요약
 | 용도        | 라이브러리          | 설명                        |
 | --------- | -------------- | ------------------------- |
 | 외부 API 호출 | WebClient      | Netty 기반의 논블로킹 HTTP 클라이언트 |
 | RDB 접근    | R2DBC          | 비동기 방식의 관계형 데이터베이스 연동     |
-| 캐싱 처리     | Reactive Redis | 리액티브 방식의 Redis 연동 클라이언트   ||
+| 캐싱 처리     | Reactive Redis | 리액티브 방식의 Redis 연동 클라이언트   |
 > Netty는 OS 이벤트 큐를 활용해 I/O 대기 상태를 관리하므로 블로킹 없이 처리 가능
 
 ### 4. 실습 코드
@@ -720,7 +720,7 @@ intFlux.subscribe(data -> {
 | :------: | ---------- | ---------------------------- |
 |  스레드 모델  | 요청당 1스레드   | 요청 중간에 스레드 분리 발생             |
 | 컨텍스트 스위칭 | 거의없음       | 빈번한 전환 발생                    |
-|  블로킹 처리  | 자연스럽게 처리됨  | Scheduler를 써도 성능 저하 가능       ||
+|  블로킹 처리  | 자연스럽게 처리됨  | Scheduler를 써도 성능 저하 가능       |
 
 ### 6. Scheduler는 언제 사용?
 다음과 같은 상황에서는 불가피하게 **Scheduler를 사용하여 스레드를 분리**해야 함
@@ -729,11 +729,11 @@ intFlux.subscribe(data -> {
 - 이벤트 루프 스레드의 부하가 높고, **병렬 처리를 통해 성능 향상이 가능한 경우**
 > Scheduler는 논블로킹 구조 내에서 **제한적으로 사용하는 우회 전략**일 뿐, 기본 구조는 Netty 이벤트 루프 중심으로 유지하는 것이 원칙입니다.
 
-| **작업유형** | **처리방식** | 
-|:-:|-|
-| 트랜잭션/로그인/회원가입 등 핵심 로직 | JPA + Scheduler(스레드 분리) | 
-| 비중요 비동기 저장 (채팅, 로그 등) | MQ를 통한 비동기 저장 | 
-| 가벼운 조회 등 | R2DBC 사용 | 
+|       **작업유형**        | **처리방식**                |
+| :-------------------: | ----------------------- |
+| 트랜잭션/로그인/회원가입 등 핵심 로직 | JPA + Scheduler(스레드 분리) |
+| 비중요 비동기 저장 (채팅, 로그 등) | MQ를 통한 비동기 저장           |
+|       가벼운 조회 등        | R2DBC 사용                |
 
 ### 7. WebFlux 블로킹 처리 원칙
 1.	가급적 R2DBC, WebClient, Reactive Redis 등 Netty 기반 논블로킹 라이브러리 사용
@@ -753,3 +753,385 @@ intFlux.subscribe(data -> {
 - “논블로킹은 코드 스타일이 아니라 시스템의 설계 철학”이라는 점을 명심할 것
 
 ---
+
+## 2025-07-23 - Reactive Stream - 함수형 프로그래밍이란?
+
+### 1. 학습 주제
+- 함수형 프로그래밍에 대한 이해
+- 함수형 프로그래밍을 통한 Reactive Stream 작성
+
+### 2. 주요 개념 요약
+| 항목                                 | 설명                                                                                                    |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| **함수형 프로그래밍**                      | 코드를 선언적이고 간결하게 표현하기 위한 방식으로, 함수를 객체처럼 다루는 것이 핵심입니다.                                                   |
+| **Java에서 함수는 객체?**                 | Java 8부터 `Function`, `Consumer`, `Supplier` 등의 함수형 인터페이스를 통해 함수도 객체로 전달 가능합니다.                        |
+| **리액티브 스트림**                       | 일반 Stream처럼 종결자 없이는 실행되지 않으며, `subscribe`, `publish` 등이 종결자 역할을 합니다.                                  |
+| **Subscriber-Publisher 패턴**        | `subscribe()`를 통해 데이터가 흐르기 시작하며, publisher는 데이터를 방출하고 subscriber는 이를 소비합니다.                           |
+| **Controller는 subscribe 없어도 되는가?** | Spring WebFlux에서는 내부적으로 Netty의 이벤트 루프 스레드에서 자동 구독되므로 subscribe 호출이 필요 없습니다. 테스트 코드는 명시적 subscribe 필요. |
+
+### 3. 함수형 프로그래밍 vs 리액티브 스트림
+#### 3-1. 기본 코드 (명령형 스타일)
+```java
+List<Integer> sink = new ArrayList<>();
+for (int i = 1; i < 10; i++) {
+    sink.add(i);
+}
+
+for (int i = 0; i < sink.size(); i++) {
+    System.out.println(sink.get(i));
+}
+```
+#### 3-2. 개선 요구사항
+- 모든 변수에 *4 연산 수행
+- 4의 배수만 필터링
+
+#### 3-3. 명령형 → 함수형으로 전환
+##### 3-3-1. 1, ×4 연산 - 명령형 vs 함수형
+- 기존 코드
+```java
+List<Integer> newSink1 = new ArrayList<>();
+for (int i = 0; i <= 8; i++) {
+    newSink1.add(sink.get(i) * 4);
+}
+sink = newSink1;
+```
+- 함수형 변경
+```java
+sink = map(sink, data -> data * 4);
+
+private List<Integer> map(List<Integer> sink, Function<Integer, Integer> mapper) {
+    List<Integer> result = new ArrayList<>();
+    for (Integer item : sink) {
+        result.add(mapper.apply(item));
+    }
+    return result;
+}
+```
+
+##### 3-3-2. 필터링 - 명령형 vs 함수형
+- 기존코드
+```java
+List<Integer> newSink2 = new ArrayList<>();
+for (int i = 0; i <= 8; i++) {
+    if (sink.get(i) % 4 == 0) {
+        newSink2.add(sink.get(i));
+    }
+}
+sink = newSink2;
+```
+- 함수형 변경
+```java
+sink = filter(sink, data -> data % 4 == 0);
+
+private List<Integer> filter(List<Integer> sink, Predicate<Integer> predicate) {
+    List<Integer> result = new ArrayList<>();
+    for (Integer item : sink) {
+        if (predicate.test(item)) {
+            result.add(item);
+        }
+    }
+    return result;
+}
+
+```
+
+##### 3-3-3. 출력 - 명령형 vs 함수형
+- 기존코드
+```java
+for (int i = 0; i < sink.size(); i++) {
+    System.out.println(sink.get(i));
+}
+```
+- 함수형 변경
+```java
+print(sink, System.out::println);
+
+private void print(List<Integer> sink, Consumer<Integer> printer) {
+    for (Integer item : sink) {
+        printer.accept(item);
+    }
+}
+```
+
+### 4. Stream API 활용 (람다 기반)
+- 출력부분 변경
+```java
+IntStream.rangeClosed(1, 9)
+         .boxed()
+         .map(data -> data * 4)
+         .filter(data -> data % 4 == 0)
+         .forEach(System.out::println);
+```
+
+### 5. Reactive Stream 활용
+- Reactive Stream으로 변경
+```java
+Flux.fromIterable(IntStream.rangeClosed(1, 9).boxed().toList())
+    .map(data -> data * 4)
+    .filter(data -> data % 4 == 0)
+    .subscribe(System.out::println);
+```
+
+### 6. 비동기 핵심 포인트
+1. **함수형 프로그래밍은 함수를 객체처럼 다루며, 선언적 코드 스타일을 가능하게 함**  
+2. **Flux, Mono는 Stream처럼 중간 연산자(Operator)를 체이닝할 수 있음**  
+3. **Flux는 subscribe()가 호출되어야 실행됨 (Lazy Evaluation)**  
+4. **Spring WebFlux는 Controller 내부에서 자동으로 구독을 수행 (Netty 이벤트 루프)**
+
+### 7. 비동기 흐름 예시
+```java
+public Flux<Integer> example(){
+    return Flux.range(1, 9)
+               .map(n -> n * 2)
+               .filter(n -> n % 4 == 0);
+}
+```
+- 위 코드는 실행되지 않음 (lazy)
+- Controller가 있거나 subscribe 호출 시 실행됨
+- Netty 이벤트 루프가 결과 전송
+- 작업 완료후 Netty 복귀
+
+### 8. 마무리
+
+- 함수형 프로그래밍은 선언적이고 유연한 코드 구성을 도움
+- 리액티브 스트림은 함수형 패턴을 기반으로 비동기 데이터 흐름을 구현
+- WebFlux는 subscribe 없이도 동작하며, 테스트 환경에선 명시적 구독 필요.
+
+--- 
+
+## 2025-07-23 - Reactive Stream - 함수형 프로그래밍이란?
+
+### 1. 학습 주제
+- 함수형 프로그래밍에 대한 이해
+- 함수형 프로그래밍을 통한 Reactive Stream 작성
+
+### 2. 주요 개념 요약
+| 항목                                 | 설명                                                                                                    |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| **함수형 프로그래밍**                      | 코드를 선언적이고 간결하게 표현하기 위한 방식으로, 함수를 객체처럼 다루는 것이 핵심입니다.                                                   |
+| **Java에서 함수는 객체?**                 | Java 8부터 `Function`, `Consumer`, `Supplier` 등의 함수형 인터페이스를 통해 함수도 객체로 전달 가능합니다.                        |
+| **리액티브 스트림**                       | 일반 Stream처럼 종결자 없이는 실행되지 않으며, `subscribe`, `publish` 등이 종결자 역할을 합니다.                                  |
+| **Subscriber-Publisher 패턴**        | `subscribe()`를 통해 데이터가 흐르기 시작하며, publisher는 데이터를 방출하고 subscriber는 이를 소비합니다.                           |
+| **Controller는 subscribe 없어도 되는가?** | Spring WebFlux에서는 내부적으로 Netty의 이벤트 루프 스레드에서 자동 구독되므로 subscribe 호출이 필요 없습니다. 테스트 코드는 명시적 subscribe 필요. |
+
+### 3. 함수형 프로그래밍 vs 리액티브 스트림
+#### 3-1. 기본 코드 (명령형 스타일)
+```java
+List<Integer> sink = new ArrayList<>();
+for (int i = 1; i < 10; i++) {
+    sink.add(i);
+}
+
+for (int i = 0; i < sink.size(); i++) {
+    System.out.println(sink.get(i));
+}
+```
+#### 3-2. 개선 요구사항
+- 모든 변수에 *4 연산 수행
+- 4의 배수만 필터링
+
+#### 3-3. 명령형 → 함수형으로 전환
+##### 3-3-1. 1, ×4 연산 - 명령형 vs 함수형
+- 기존 코드
+```java
+List<Integer> newSink1 = new ArrayList<>();
+for (int i = 0; i <= 8; i++) {
+    newSink1.add(sink.get(i) * 4);
+}
+sink = newSink1;
+```
+- 함수형 변경
+```java
+sink = map(sink, data -> data * 4);
+
+private List<Integer> map(List<Integer> sink, Function<Integer, Integer> mapper) {
+    List<Integer> result = new ArrayList<>();
+    for (Integer item : sink) {
+        result.add(mapper.apply(item));
+    }
+    return result;
+}
+```
+
+##### 3-3-2. 필터링 - 명령형 vs 함수형
+- 기존코드
+```java
+List<Integer> newSink2 = new ArrayList<>();
+for (int i = 0; i <= 8; i++) {
+    if (sink.get(i) % 4 == 0) {
+        newSink2.add(sink.get(i));
+    }
+}
+sink = newSink2;
+```
+- 함수형 변경
+```java
+sink = filter(sink, data -> data % 4 == 0);
+
+private List<Integer> filter(List<Integer> sink, Predicate<Integer> predicate) {
+    List<Integer> result = new ArrayList<>();
+    for (Integer item : sink) {
+        if (predicate.test(item)) {
+            result.add(item);
+        }
+    }
+    return result;
+}
+
+```
+
+##### 3-3-3. 출력 - 명령형 vs 함수형
+- 기존코드
+```java
+for (int i = 0; i < sink.size(); i++) {
+    System.out.println(sink.get(i));
+}
+```
+- 함수형 변경
+```java
+print(sink, System.out::println);
+
+private void print(List<Integer> sink, Consumer<Integer> printer) {
+    for (Integer item : sink) {
+        printer.accept(item);
+    }
+}
+```
+
+### 4. Stream API 활용 (람다 기반)
+- 출력부분 변경
+```java
+IntStream.rangeClosed(1, 9)
+         .boxed()
+         .map(data -> data * 4)
+         .filter(data -> data % 4 == 0)
+         .forEach(System.out::println);
+```
+
+### 5. Reactive Stream 활용
+- Reactive Stream으로 변경
+```java
+Flux.fromIterable(IntStream.rangeClosed(1, 9).boxed().toList())
+    .map(data -> data * 4)
+    .filter(data -> data % 4 == 0)
+    .subscribe(System.out::println);
+```
+
+### 6. 비동기 핵심 포인트
+1. **함수형 프로그래밍은 함수를 객체처럼 다루며, 선언적 코드 스타일을 가능하게 함**  
+2. **Flux, Mono는 Stream처럼 중간 연산자(Operator)를 체이닝할 수 있음**  
+3. **Flux는 subscribe()가 호출되어야 실행됨 (Lazy Evaluation)**  
+4. **Spring WebFlux는 Controller 내부에서 자동으로 구독을 수행 (Netty 이벤트 루프)**
+
+### 7. 비동기 흐름 예시
+```java
+public Flux<Integer> example(){
+    return Flux.range(1, 9)
+               .map(n -> n * 2)
+               .filter(n -> n % 4 == 0);
+}
+```
+- 위 코드는 실행되지 않음 (lazy)
+- Controller가 있거나 subscribe 호출 시 실행됨
+- Netty 이벤트 루프가 결과 전송
+- 작업 완료후 Netty 복귀
+
+### 8. 마무리
+
+- 함수형 프로그래밍은 선언적이고 유연한 코드 구성을 도움
+- 리액티브 스트림은 함수형 패턴을 기반으로 비동기 데이터 흐름을 구현
+- WebFlux는 subscribe 없이도 동작하며, 테스트 환경에선 명시적 구독 필요.
+
+--- 
+
+## 2025-07-28 - WebFlux의 기본적인 사용법, Flux와 Mono
+
+### 1. 학습 주제
+- `Mono`와 `Flux`의 개념 및 차이점
+- 사용 시점과 적절한 선택 기준
+- 리액티브 흐름의 기본적인 동작 방식 이해
+
+### 2. 주요 개념 요약
+| 항목                         | 설명                                                  |
+| -------------------------- | --------------------------------------------------- |
+| **Flux**                   | 0개 이상의 데이터를 비동기 스트림으로 발행 (예: `List<Stream>`)        |
+| **Mono**                   | 최대 1개의 데이터를 비동기적으로 발행 (예: `Optional`)               |
+| **Flux가 아닌 Mono 왜 사용하는가?** | 하나의 값만 다룰 경우 Flux보다 Mono가 더 직관적이며, 의도를 명확히 전달할 수 있음 |
+| **데이터가 없을 경우**             | `Mono<Void>`를 사용하여 "값 없음"을 표현함                      |
+### 3. Flux와 Mono의 기본 흐름
+Flux와 Mono는 아래 순서로 동작:
+1. **데이터 흐름 시작**: `just()`, `fromIterable()`, `fromCallable()` 등을 사용  
+2. **데이터 가공**: `map()`, `filter()`, `flatMap()` 등의 연산자 적용  
+3. **구독(subscribe)**: 실제로 데이터 흐름이 실행됨 (구독하지 않으면 동작하지 않음)
+
+###  4. Flux vs Mono 예제
+#### 4-1. Flux 예제 – 여러 데이터 처리
+- 여러 값을 발행하고, 중간에 가공한 뒤, 구독을 통해 최종 소비
+1. just 데이터로부터 흐름을 시작
+2. map과 filter 같은 연산자로 데이터를 가공
+3. subscribe하면서 데이터를 방출
+```java
+Flux.<Integer>just(1, 2, 3, 4, 5)
+    .map(data -> data * 2)
+    .filter(data -> data % 4 == 0)
+    .subscribe(data -> System.out.println("Flux가 구독한 data! = " + data));
+```
+#### 4-2. Mono 예제 – 단일 데이터 처리
+- 하나의 값만 처리할 때는 Mono가 더 적합하고 간결예제코드
+```java
+Mono.<Integer>just(2)
+    .map(data -> data * 2)
+    .filter(data -> data % 4 == 0)
+    .subscribe(data -> System.out.println("Mono가 구독한 data! = " + data));
+```
+
+### 5.  Mono에서 block() 사용 (Blocking 예제)
+- Mono.just("String")은 **비동기 데이터 컨테이너**
+    실제 데이터 흐름은 subscribe() 또는 block() 같은 트리거가 있어야 작동
+- block()을 호출하면:
+    - Mono 내부의 데이터가 **완성될 때까지 현재 스레드가 멈춤**
+    - 즉, **비동기 객체를 동기적으로 다루는 방식**
+```java
+Mono<String> justString = Mono.just("String");  
+// Mono는 비동기적으로 값을 전달하는 객체입니다.
+// 구독이 일어나야만 내부 데이터 흐름이 실행됩니다.
+
+// block() 메서드는 Mono의 결과값이 나올 때까지 현재 스레드를 블로킹(대기)합니다.
+String block = justString.block();  
+System.out.println("block = " + block);
+```
+> [!WARNING]
+    > .block()은 **이벤트 루프를 막기 때문에 WebFlux에서는 사용을 지양**
+
+### 6. List 반환시 동작하는 이유?
+```java
+@GetMapping("/list")
+public List<String> getList() {
+    return List.of("a", "b", "c");
+}
+```
+- WebFlux는 동기 값을 반환해도 내부적으로 Mono.just(...)로 자동 포장
+- 위 코드는 다음과 같이 처리
+```java
+return Mono.just(List.of("a", "b", "c"));
+```
+- 이 기능은 단순 타입(String, int, Map, List 등)에 모두 적용
+
+### 7. Flux & Mono 핵심 포인트
+
+1. **Flux**: 0개 이상의 비동기 데이터 흐름 (여러 개의 데이터 스트림)
+2. **Mono**: 0~1개의 데이터 처리 (단일 데이터, Optional 느낌)
+3. **단일 값 처리 시**에는 Mono가 명확하고 가독성이 좋음
+4. **WebFlux는 일반 객체를 자동으로 Mono로 감싸서 반환** (Spring 내부 처리)
+5. **명시적으로 Mono/Flux를 사용하는 것이 리액티브 흐름을 명확하게 표현함**
+6. **블로킹 연산은 리액티브 흐름을 깨트리므로 피해야 함**
+
+### 8. 마무리
+
+- Flux와 Mono는 WebFlux의 핵심 데이터 흐름 도구
+- 어떤 연산을 수행하든 **subscribe()가 호출되기 전까지는 실제로 아무 일도 일어나지 않음**
+- Flux: 여러 개의 비동기 데이터 처리
+- Mono: 단일 데이터 비동기 처리
+- 리액티브 프로그래밍의 기본은 **데이터 흐름 + 지연 실행 + 비동기 처리**
+
+--- 
