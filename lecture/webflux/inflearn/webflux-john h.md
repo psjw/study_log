@@ -992,3 +992,96 @@ return Mono.just(List.of("a", "b", "c"));
 - 리액티브 프로그래밍의 기본은 **데이터 흐름 + 지연 실행 + 비동기 처리**
 
 --- 
+
+## 2025-07-29 - Operator에 대하여 - Mono
+
+### 1. 학습 주제
+- `Mono`의 Operator 개념 이해
+- 다양한 Operator의 실사용 예시 및 흐름 파악
+
+### 2. 주요 개념 요약
+| 항목             | 설명                                                                                |
+| -------------- | --------------------------------------------------------------------------------- |
+| **Operator**   | Mono/Flux에서 데이터를 **가공, 변환, 제어**하는 연산자                                             |
+| **Mono 기본 흐름** | 생성 Operator → 가공 Operator → `subscribe()`                                         |
+| **시작 방식 구분**   | **데이터로부터 시작**: `just()`, `empty()` <br> **함수로부터 시작**: `fromCallable()`, `defer()` |
+
+###  4. Mono 생성 - 데이터로부터 시작
+#### 4-1. `just`
+- 하나의 값을 가진 Mono 생성
+```java
+Mono.just(1).subscribe(data -> System.out.println("data = " + data));
+```
+#### 4-2. `empty()`
+- 데이터 없이 비어 있는 Mono 생성  
+- 실행은 되지만 `onNext` 이벤트는 발생하지 않음
+```java
+Mono.empty().subscribe(data -> System.out.println("data = " + data));
+```
+> **사용 예시**: 시스템 오류 발생 시 로그는 남기되, 더 이상 흐름을 진행하지 않음
+
+### 5. Mono 생성 - 함수로부터 시작
+#### 5-1. `fromCallable()`
+- 동기적으로 값을 반환하는 메서드를 Mono로 감싸서 스레드를 분리하고자 할 때 사용  
+- **RestTemplate, JPA 등 블로킹 라이브러리 처리 시 사용**
+```java
+Mono<String> monoFromCallable = Mono.fromCallable(() -> {
+    return callRestTemplate("안녕");
+}).subscribeOn(Schedulers.boundedElastic());
+
+public String callRestTemplate(String request) {
+    return request + " callRestTemplate 응답";
+}
+```
+#### 5-2. `defer()`
+- Mono를 반환하는 함수를 실행 시점에 호출  
+- **지연 실행**, **Mono 흐름 안에서 블로킹 코드 포함한 로직 처리** 시 유용
+```java
+Mono<String> monoFromDefer = Mono.defer(() -> {
+    return callWebClient("안녕");
+});
+monoFromDefer.subscribe();
+
+public Mono<String> callWebClient(String request) {
+    return Mono.just(request + " callWebClient 응답");
+}
+```
+
+##### 블로킹 포함 로직을 defer로 감싸는 예시
+```java
+Mono<String> stringMono = Mono.defer(() -> {
+    String a = "안녕";
+    String b = "하세"; // 블로킹 발생 가능
+    String c = "요";
+    return callWebClient(a + b + c);
+}).subscribeOn(Schedulers.boundedElastic());
+```
+> [!NOTE]
+    > `subscribeOn(Schedulers.boundedElastic())` 을 통해 블로킹 코드가 메인 이벤트 루프를 막지 않도록 분리
+
+### 6. Mono → Flux 변환: `flatMapMany()`
+- Mono가 하나의 값만 방출하더라도, 해당 값을 기반으로 여러 데이터를 방출하는 Flux로 변환 가능
+```java
+Mono<Integer> one = Mono.just(1);
+Flux<Integer> integerFlux = one.flatMapMany(data -> {
+    return Flux.just(data, data + 1, data + 2);
+});
+integerFlux.subscribe(data -> System.out.println("data = " + data));
+```
+
+### 7. 핵심 요약
+| 분류               | 설명                               |
+| ---------------- | -------------------------------- |
+| `just()`         | 즉시 값을 포함한 Mono 생성                |
+| `empty()`        | 아무 이벤트도 발생하지 않는 Mono             |
+| `fromCallable()` | 블로킹 코드 결과를 Mono로 감싸 별도 스레드에서 실행  |
+| `defer()`        | Mono 흐름 내에서 실행 시점까지 로직을 지연 처리    |
+| `flatMapMany()`  | Mono → Flux 변환 시 사용, 다수의 값 방출 가능 |
+### 8. 마무리
+
+- `Mono`는 단일 값 처리를 위한 리액티브 타입으로, 다양한 시작 방식과 조작 연산자를 제공함  
+- 특히 **블로킹 코드가 포함된 작업은 반드시 스레드 분리 (`subscribeOn`) 처리**가 필요  
+- `defer()`는 지연 실행 + 흐름 제어에 매우 유용하므로, 동적 Mono 생성 시 필수로 활용됨  
+- `Mono → Flux` 전환은 `flatMapMany()`로 자연스럽게 가능하며, 실전에서 자주 사용됨
+
+--- 
