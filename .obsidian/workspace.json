@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "lecture/webflux/inflearn/webflux-john h.md",
+                "file": "algorithm/practice/2025-08/2025-08-04.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "webflux-john h"
+              "title": "2025-08-04"
             }
           }
         ]
@@ -71,11 +71,11 @@
               "type": "bookmarks",
               "state": {},
               "icon": "lucide-bookmark",
-              "title": "북마크"
+              "title": "Bookmarks"
             }
           },
           {
-            "id": "619825371b632e18",
+            "id": "edfe47ccd7e34d50",
             "type": "leaf",
             "state": {
               "type": "mk-path-view",
@@ -84,13 +84,11 @@
               "title": "Navigator"
             }
           }
-        ],
-        "currentTab": 3
+        ]
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "right": {
     "id": "6003d26addbce1ec",
@@ -206,16 +204,20 @@
       "flashcards-obsidian:Generate flashcards": false
     }
   },
-  "active": "ae8710c2f852217d",
+  "active": "00ea4cae71ff9e76",
   "lastOpenFiles": [
-    "webflux-john h.pdf",
+    "algorithm/practice/2025-07/2025-07-28.md",
+    "algorithm/practice/2025-08/2025-08-04.md",
+    "algorithm/practice/2025-08/2025-08-01.md",
+    "algorithm/practice/2025-08/2025-07-28.md",
+    "algorithm/practice/2025-08",
+    "algorithm/practice/2025-07/2025-07-23.md",
     "lecture/webflux/inflearn/webflux-john h.md",
+    "webflux-john h.pdf",
     "lecture/jpa/inflearn/jpa-김영한.md",
     "lecture/querydsl/inflearn/querydsl-김영한.md",
     "flashcards/webflux.md",
-    "algorithm/practice/2025-07/2025-07-28.md",
     "algorithm/practice/2025-07/2025-07-29.md",
-    "algorithm/practice/2025-07/2025-07-23.md",
     "algorithm/practice/2025-07/2025-07-22.md",
     "algorithm/practice/2025-07/.md",
     "algorithm/practice/2025-07/2025-07-08.md",
@@ -239,12 +241,9 @@
     "Untitled.canvas",
     "flashcards/webflux",
     "flashcards",
-    "lecture/webflux/inflearn/flashcards",
     "lecture/webflux/inflearn/aaa.md",
     "lecture/Untitled.md",
     "theory/jvm/jvm-gc-theory.md",
-    "theory/cs/Instruction_cycle.md",
-    "theory/jpa/02-entity-mapping-basics.md",
-    "theory/jpa/01-introduction-to-jpa.md"
+    "theory/cs/Instruction_cycle.md"
   ]
 }
