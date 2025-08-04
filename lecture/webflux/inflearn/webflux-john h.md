@@ -1006,13 +1006,13 @@ return Mono.just(List.of("a", "b", "c"));
 | **Mono 기본 흐름** | 생성 Operator → 가공 Operator → `subscribe()`                                         |
 | **시작 방식 구분**   | **데이터로부터 시작**: `just()`, `empty()` <br> **함수로부터 시작**: `fromCallable()`, `defer()` |
 
-###  4. Mono 생성 - 데이터로부터 시작
-#### 4-1. `just`
+### 3. Mono 생성 - 데이터로부터 시작
+#### 3-1. `just`
 - 하나의 값을 가진 Mono 생성
 ```java
 Mono.just(1).subscribe(data -> System.out.println("data = " + data));
 ```
-#### 4-2. `empty()`
+#### 3-2. `empty()`
 - 데이터 없이 비어 있는 Mono 생성  
 - 실행은 되지만 `onNext` 이벤트는 발생하지 않음
 ```java
@@ -1020,8 +1020,8 @@ Mono.empty().subscribe(data -> System.out.println("data = " + data));
 ```
 > **사용 예시**: 시스템 오류 발생 시 로그는 남기되, 더 이상 흐름을 진행하지 않음
 
-### 5. Mono 생성 - 함수로부터 시작
-#### 5-1. `fromCallable()`
+### 4. Mono 생성 - 함수로부터 시작
+#### 4-1. `fromCallable()`
 - 동기적으로 값을 반환하는 메서드를 Mono로 감싸서 스레드를 분리하고자 할 때 사용  
 - **RestTemplate, JPA 등 블로킹 라이브러리 처리 시 사용**
 ```java
@@ -1033,7 +1033,7 @@ public String callRestTemplate(String request) {
     return request + " callRestTemplate 응답";
 }
 ```
-#### 5-2. `defer()`
+#### 4-2. `defer()`
 - Mono를 반환하는 함수를 실행 시점에 호출  
 - **지연 실행**, **Mono 흐름 안에서 블로킹 코드 포함한 로직 처리** 시 유용
 ```java
@@ -1059,7 +1059,7 @@ Mono<String> stringMono = Mono.defer(() -> {
 > [!NOTE]
     > `subscribeOn(Schedulers.boundedElastic())` 을 통해 블로킹 코드가 메인 이벤트 루프를 막지 않도록 분리
 
-### 6. Mono → Flux 변환: `flatMapMany()`
+### 5. Mono → Flux 변환: `flatMapMany()`
 - Mono가 하나의 값만 방출하더라도, 해당 값을 기반으로 여러 데이터를 방출하는 Flux로 변환 가능
 ```java
 Mono<Integer> one = Mono.just(1);
@@ -1069,7 +1069,7 @@ Flux<Integer> integerFlux = one.flatMapMany(data -> {
 integerFlux.subscribe(data -> System.out.println("data = " + data));
 ```
 
-### 7. 핵심 요약
+### 6. 핵심 요약
 | 분류               | 설명                               |
 | ---------------- | -------------------------------- |
 | `just()`         | 즉시 값을 포함한 Mono 생성                |
@@ -1077,7 +1077,7 @@ integerFlux.subscribe(data -> System.out.println("data = " + data));
 | `fromCallable()` | 블로킹 코드 결과를 Mono로 감싸 별도 스레드에서 실행  |
 | `defer()`        | Mono 흐름 내에서 실행 시점까지 로직을 지연 처리    |
 | `flatMapMany()`  | Mono → Flux 변환 시 사용, 다수의 값 방출 가능 |
-### 8. 마무리
+### 7. 마무리
 
 - `Mono`는 단일 값 처리를 위한 리액티브 타입으로, 다양한 시작 방식과 조작 연산자를 제공함  
 - 특히 **블로킹 코드가 포함된 작업은 반드시 스레드 분리 (`subscribeOn`) 처리**가 필요  
@@ -1098,15 +1098,17 @@ integerFlux.subscribe(data -> System.out.println("data = " + data));
 | **Operator**     | `Mono`/`Flux`에서 데이터를 **가공, 변환, 제어**하는 연산자                                                      |
 | **Flux 기본 흐름**   | 생성 Operator → 가공 Operator → `subscribe()`                                                      |
 | **시작 방식 구분**     | **데이터로부터 시작**: `just()`, `empty()`, `from-시리즈`<br>**함수로부터 시작**: `defer()`, `create()`          |
+| Sink             |                                                                                                |
+| Context          | Webflux에서 ThreadLocal 대신 스레드 변경에도 안전한 데이터 전달을 위해 Context사용                                     |
 
-###  4. Flux 생성 - 데이터로부터 시작
-#### 4-1. `just`
+###  3. Flux 생성 - 데이터로부터 시작
+#### 3-1. `just`
 -  여러개의 값을 가진 Flux 생성
 ```java
 Flux.just(1, 2, 3, 4)  
         .subscribe(data -> System.out.println("data = " + data));
 ```
-#### 4-2. `fromIterable()`
+#### 3-2. `fromIterable()`
 - 리스트나 컬렉션을 Flux로 반환
 ```java
 List<Integer> basicList = List.of(1, 2, 3, 4);  
@@ -1114,8 +1116,8 @@ Flux.fromIterable(basicList)
         .subscribe(data -> System.out.println("data fromIterable = " + data));
 ```
 
-### 5. Flux 생성 - 함수로부터 시작
-#### 5-1. `create()`
+### 4. Flux 생성 - 함수로부터 시작
+#### 4-1. `create()`
 - 내부에서 동기적인 객체를 반환
 ```java
 Flux.create(sink -> {  
@@ -1125,7 +1127,7 @@ Flux.create(sink -> {  
     sink.complete(); // sink가 언제 끝나는지 알 수 없기 때문에 마지막에 호출  
 }).subscribe(data -> System.out.println("data from sink = " + data));
 ```
-#### 5-2. `defer()`
+#### 4-2. `defer()`
 - Flux 객체 생성을 지연 처리
 ```java
 Flux.defer(() -> {  
@@ -1133,7 +1135,7 @@ Flux.defer(() -> {
 }).subscribe(data -> System.out.println("data from defer = " + data));
 ```
 
-### 6. Sink
+### 5. Sink
 - 동기적인 데이터 마이그레이션
 - Flux의 방출 타이밍 지정 가능 → 로직이 복잡한 상황에서 특정 데이터만 추출 가능
 - 블로킹 코드의 ThreadLocal 대신 context를 사용하여 공통 접근 변수 추출
@@ -1171,21 +1173,29 @@ public void recursiveFunction1(FluxSink<String> sink) {
     }  
 }
 ```
+> [!warning]
+	> Sink와 Request 개수
+	> 리액트 스트림의 Request 기본값은 무한대이지만 next() 호출로 방출하기 때문에 요청개수를 n으로 설정하면 n개 이상의 데이터가 next로 방출될 시 예외가 발생하므로 request 개수조작은 권장하지 않음
 
-
-### 7. Flux → Mono 변환: `collectList()`
-- Flux를 하나의 `Mono<List<T>>`로 변환
-- 모든 데이터가 완료된 이후에 결과를 방출
-
+### 6. Context
+- Webflux는 스레드 변경이 매우 자주 일어나기 때문에 ThreadLocal 사용이 제한적
+- 리액터 내부에서 제공하는 Key-Value 형태의 저장소 Context 사용
+- 스레드 변경에도 안전하게 데이터 전달
 ```java
-Mono<List<Integer>> listMono = Flux.<Integer>just(1, 2, 3, 4, 5) // 첫 번째는 빈 함수로부터, 두 번째는 데이터로부터 시작할 수 있음  
-        .map(data -> data * 2)  
-        .filter(data -> data % 4 == 0)  
-        .collectList(); // Mono<List<...>> -> 처리 완료 후 List로 모아줌 -> 언제 끝날지 모르니 Mono로 감쌈  
-listMono.subscribe(data -> System.out.println("collectList가 변환한 list data! = " + data));
+Mono.deferContextual(ctx -> {
+String userId = ctx.get("userId");
+return Mono.just("사용자: " + userId);
+})
+.contextWrite(Context.of("userId", "abc123"));
+
+Mono.fromCallable(() -> {
+// JPA 트랜잭션 처리
+})
+.subscribeOn(Schedulers.boundedElastic());
 ```
-> [!Warning]
-    > collectLIst() 모든 데이터가 완료된 이후에 결과를 방출
+> [!important]
+    > JPA 트랜잭션은 사용 불가능한가?
+    > boundedElastic() 스레드 안에서는 ThreadLocal이 유지되지만 이스레드 밖으로 트랜잭션 객체가 나가면 깨짐
 
 ### 7. 핵심 요약
 | 분류               | 설명                                   |
@@ -1204,3 +1214,112 @@ listMono.subscribe(data -> System.out.println("collectList가 변환한 list dat
 
 ---
 
+## 2025-08-01 - Operator에 FlatMap에 대하여
+
+### 1. 학습 주제
+- `flatMap`의 개념 이해
+- flatMap의 실사용 예시 및 동작 흐름 파악
+
+### 2. 주요 개념 요약
+| 항목                    | 설명                                                                                                                                                               |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **map**               | 단일 객체를 변환                                                                                                                                                        |
+| **flatMap**           | 각 데이터를 비동기 함수로 변환하고, 내부의 `Mono`/`Flux`를 평탄화. Mono(Flux) 안에 다른 Mono/Flux가 중첩된 경우 사용.<br>내부 순서를 보장하지 않으며 병렬 실행 가능                                                  |
+| **flatMapSequential** | 순서 보장이 필요한 경우 사용                                                                                                                                                 |
+| **비동기 + 비동기**         | 비동기 작업 안에 다른 비동기 작업이 포함되면, 결국 하나의 비동기 체인으로 합쳐지므로 flatMap이 자연스럽게 중첩 구조를 평탄화                                                                                       |
+### 3. 데이터 변환 구조
+| 반환 값                | 변환 후             | 설명                                                                                                              |
+| ------------------- | ---------------- | --------------------------------------------------------------------------------------------------------------- |
+| `Mono<Mono<T>>`     | `Mono<T>`        | 중첩 Mono를 평탄화                                                                                                    |
+| `Mono<Flux<T>>`     | `Flux<T>`        | 내부 Flux를 평탄화. 순서 보장이 필요하면 `flatMapSequential` 사용                                                                |
+| `Flux<Mono<T>>`     | `Flux<T>`        | `flatMapMany`를 사용. Flux의 순서가 보장됨                                                                                |
+| `Flux<Flux<T>>`     | `Flux<List<T>>`  | `collectList()`로 List로 묶어 반환. 예: `Flux<Mono<List<T>>>` → `Flux<List<T>>`                                        |
+### 4. flatMap 관련 특징 및 예제
+- **flatMap 특징**
+  - 중첩된 비동기 작업을 처리할 때 유용
+  - 입력 순서를 보장하지 않음 → 내부 요소들이 처리 완료되는 순서대로 방출
+  - 내부 호출을 동시에 실행
+  - 블로킹 회피와 직접적인 관련은 없음
+
+#### 4-1. `just` (순서 보장)
+-  just는 순서를 보장
+```java
+Flux<Integer> integerFlux = one.flatMapMany(data -> Flux.just(data, data + 1, data + 2));
+integerFlux.subscribe(data -> System.out.println("data = " + data));
+```
+#### 4-2. `flatMap()`(순서 보장 안함)
+```java
+Flux<String> flatMap = Flux.just(
+        callWebClient("1단계 - 문제 이해하기", 1500),
+        callWebClient("2단계 - 문제 단계별로 풀어가기", 1500),
+        callWebClient("3단계 - 최종 응답", 1500)
+    )
+    .flatMap(monoData -> monoData.map(data -> data + " 추가 가공!"));
+
+flatMap.subscribe(data -> System.out.println("FlatMapped data = " + data));
+
+public Mono<String> callWebClient(String request, long delay) {
+    return Mono.defer(() -> {
+                try {
+                    Thread.sleep(delay);
+                    return Mono.just(request + " -> 딜레이 : " + delay);
+                } catch (InterruptedException e) {
+                    return Mono.empty();
+                }
+            })
+            .subscribeOn(Schedulers.boundedElastic());
+}
+```
+#### 4-3. `flatMapSequential()` (순서 보장)
+```java
+Flux<String> flatMapSequential = Flux.just(
+        callWebClient("1단계 - 문제 이해하기", 1500),
+        callWebClient("2단계 - 문제 단계별로 풀어가기", 1500),
+        callWebClient("3단계 - 최종 응답", 1500)
+    )
+    .flatMapSequential(monoData -> monoData);
+
+flatMapSequential.subscribe(data -> System.out.println("FlatMap Sequential data = " + data));
+```
+#### 4-4. `merge()` (순서 보장 안 함)
+```java
+Flux<String> merge = Flux.merge(
+        callWebClient("1단계 - 문제 이해하기", 1500),
+        callWebClient("2단계 - 문제 단계별로 풀어가기", 1500),
+        callWebClient("3단계 - 최종 응답", 1500)
+);
+// .map(...) 추가 시 flatMap과 유사한 구조
+merge.subscribe(data -> System.out.println("merge = " + data));
+```
+#### 4-4. `mergeSequential()`(순서 보장)
+- 병렬 실행 후 최종적으로 순서 정렬
+```java
+Flux<String> mergeSequential = Flux.mergeSequential(
+        callWebClient("1단계 - 문제 이해하기", 1500),
+        callWebClient("2단계 - 문제 단계별로 풀어가기", 1500),
+        callWebClient("3단계 - 최종 응답", 1500)
+);
+// .map(...) 추가 시 flatMap과 유사한 구조
+mergeSequential.subscribe(data -> System.out.println("mergeSequential = " + data));
+```
+> [!Warning]
+    > concat은 순서에 의존하여 실행하므로 병렬성이 떨어질 수 있음
+
+### 5. 핵심요약
+| **연산자**           | **순서 보장** | **병렬 실행** | **특징**                      |
+| ----------------- | --------- | --------- | --------------------------- |
+| flatMap           | X         | O         | 중첩 비동기 평탄화, 병렬성 최대화         |
+| flatMapSequential | O         | O         | 순서 보장, 하지만 내부적으로는 병렬 실행     |
+| merge             | X         | O         | 여러 Publisher 병합, 순서 무시      |
+| mergeSequential   | O         | O         | 병렬 실행 후 최종적으로 순서 정렬         |
+| concat            | O         | X         | 순서 의존, 병렬성 없음 → 대기 시간 발생 가능 |
+| map               | O         | N/A       | 동기적 변환                      |
+### 6. 마무리
+
+- flatMap은 리액티브 스트림에서 **중첩 비동기 평탄화**의 핵심 연산자
+- 순서 보장이 필요하면 flatMapSequential 또는 mergeSequential 사용
+- 단순 변환은 map, 병렬 변환·병합은 flatMap/merge 계열 선택
+
+---
+
+## 
