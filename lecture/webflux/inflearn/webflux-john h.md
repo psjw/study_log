@@ -1221,6 +1221,7 @@ Mono.fromCallable(() -> {
 - flatMap의 실사용 예시 및 동작 흐름 파악
 
 ### 2. 주요 개념 요약
+
 | 항목                    | 설명                                                                                                                                                               |
 | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **map**               | 단일 객체를 변환                                                                                                                                                        |
@@ -1230,10 +1231,10 @@ Mono.fromCallable(() -> {
 ### 3. 데이터 변환 구조
 | 반환 값                | 변환 후             | 설명                                                                                                              |
 | ------------------- | ---------------- | --------------------------------------------------------------------------------------------------------------- |
-| `Mono<Mono<T>>`     | `Mono<T>`        | 중첩 Mono를 평탄화                                                                                                    |
-| `Mono<Flux<T>>`     | `Flux<T>`        | 내부 Flux를 평탄화. 순서 보장이 필요하면 `flatMapSequential` 사용                                                                |
-| `Flux<Mono<T>>`     | `Flux<T>`        | `flatMapMany`를 사용. Flux의 순서가 보장됨                                                                                |
-| `Flux<Flux<T>>`     | `Flux<List<T>>`  | `collectList()`로 List로 묶어 반환. 예: `Flux<Mono<List<T>>>` → `Flux<List<T>>`                                        |
+| `Mono<Mono<T>>`     | `Mono<T>`        | 중첩 Mono를 평탄화                                                                                                    |
+| `Mono<Flux<T>>`     | `Flux<T>`        | 내부 Flux를 평탄화. 순서 보장이 필요하면 `flatMapSequential` 사용                                                                |
+| `Flux<Mono<T>>`     | `Flux<T>`        | `flatMapMany`를 사용. Flux의 순서가 보장됨                                                                                |
+| `Flux<Flux<T>>`     | `Flux<List<T>>`  | `collectList()`로 List로 묶어 반환. 예: `Flux<Mono<List<T>>>` → `Flux<List<T>>`                                        |
 ### 4. flatMap 관련 특징 및 예제
 - **flatMap 특징**
   - 중첩된 비동기 작업을 처리할 때 유용
@@ -1322,4 +1323,115 @@ mergeSequential.subscribe(data -> System.out.println("mergeSequential = " + data
 
 ---
 
-## 
+## 2025-08-02 - 시그널과 예외 처리에 대하여
+
+### 1. 학습 주제
+- 리액티브 스트림에서의 `Signal` 개념 이해
+- 예외 처리 방식과 다양한 예외 처리 연산자의 동작 흐름 파악
+- 리액티브 환경에서 `try-catch`가 동작하지 않는 이유
+
+### 2. 주요 개념 요약
+| 항목                          | 설명                                                                                                  |
+| --------------------------- | --------------------------------------------------------------------------------------------------- |
+| **doOnNext**                | 데이터가 방출될 때마다 실행                                                                                     |
+| **doOnComplete**            | 스트림이 정상적으로 완료되었을 때 실행                                                                               |
+| **doOnError**               | 에러가 발생했을 때 실행                                                                                       |
+| **doFinally**               | 스트림이 **정상 완료, 에러, 취소** 등 어떤 이유로든 종료될 때 항상 실행                                                        |
+| **호출 스택**                   | 자바 스레드에서 관리하는 메모리 영역. 함수 호출 시 스택에 호출 정보 저장, 스레드마다 독립적으로 관리                                          |
+| **onErrorMap**              | 에러를 다른 에러로 변환                                                                                       |
+| **onErrorReturn**           | 에러 발생 시 대체 데이터를 반환                                                                                  |
+| **onErrorComplete**         | 에러 발생 시 에러 대신 **완료 시그널**을 전파                                                                        |
+| **Flux.error / Mono.error** | 스트림 내에서 명시적으로 에러 시그널을 발생시킴                                                                          |
+> ℹ **doOnTerminate**: 완료/에러 시 실행되지만, 취소(`CANCEL`) 시에는 실행되지 않음.  
+> ℹ **doFinally**: 종료 원인(`SignalType`)을 인자로 제공하여 `ON_COMPLETE`, `ON_ERROR`, `CANCEL` 등을 구분 가능.
+
+### 3. 시그널 동작 예제
+- **doOnComplete** → 정상 종료 시에만 실행
+- **doFinally** → 정상, 에러, 취소 모두 실행
+```java
+Flux.just(1, 2, 3, 4) // upstream
+    .doOnNext(publishData -> System.out.println("publishData = " + publishData))
+    .doOnComplete(() -> System.out.println("스트림이 정상적으로 끝났습니다."))
+    .doOnError(ex -> System.out.println("ex 에러 상황 발생! = " + ex))
+    .doFinally(signal -> System.out.println("doFinally: 종료 타입 = " + signal))
+    .subscribe(data -> System.out.println("data = " + data));
+```
+### 4. 에러 처리
+#### 4-1. 일반적인 예외 상황
+- **자바의 try-catch는 리액티브 파이프라인 내부에서 동작하지 않음.**
+- 이유:
+    1. 리액티브 연산자(map, flatMap 등) 내부의 로직은 **즉시 실행되지 않고**, 나중에 데이터가 발행될 때 **콜백 형태로 실행**됨.
+    2. subscribe() 호출 시점과 실제 데이터 처리 시점이 **다른 스레드**에서 실행될 수 있음.
+    3. 따라서 try-catch 블록이 존재하는 **호출 스택이 이미 사라진 상태**에서 로직이 실행되므로 예외를 잡을 수 없음.
+```java
+try {
+    Flux.just(1, 2, 3, 4)
+        .map(data -> {
+            if (data == 3) {
+                throw new RuntimeException("예외 발생");
+            }
+            return data * 2;
+        })
+        .subscribeOn(Schedulers.boundedElastic()) // 외부 스레드에서 실행
+        .subscribe(data -> System.out.println("data = " + data));
+} catch (Exception e) {
+    // ❌ 여기로는 제어가 오지 않음
+    System.out.println("에러가 발생했어요!");
+}
+```
+#### 4-2. 예외처리 일관성 유지 방법
+- 에러를 데이터 흐름 안에서 처리하는 방식
+```java
+Flux.just(1, 2, 3, 4)
+    .map(data -> {
+        try {
+            if (data == 3) {
+                throw new RuntimeException("예외 발생");
+            }
+            return data * 2;
+        } catch (Exception e) {
+            // 클라이언트에서 확인 가능한 대체 데이터 반환
+            return data * 999;
+        }
+    })
+    .onErrorMap(ex -> new IllegalArgumentException("변환된 예외", ex)) // 에러 변환
+    .onErrorReturn(999) // 에러 발생 시 대체 값 반환
+    .onErrorComplete() // 에러 대신 완료 시그널 전파
+    .subscribe(data -> System.out.println("data = " + data));
+```
+#### 4-4. Flux.error() / Mono.error() 사용
+- 리액티브 스트림에서 throw 대신 사용하여 에러 시그널을 발생
+```java
+Flux.just(1, 2, 3, 4)
+    .flatMap(data -> {
+        if (data != 3) {
+            return Mono.just(data);
+        } else {
+            return Mono.error(new RuntimeException("3에서 에러 발생"));
+        }
+    })
+    .onErrorContinue((ex, value) ->
+        System.out.println("에러 발생 요소: " + value + ", 에러: " + ex.getMessage())
+    )
+    .subscribe(data -> System.out.println("data = " + data));
+```
+
+### 5. 핵심요약
+| **연산자 / 개념**                | **실행 조건**         | **주요 용도**                          |
+| --------------------------- | ----------------- | ---------------------------------- |
+| **doOnComplete**            | 정상 완료 시           | 정상 처리 후 후속 로직 실행                   |
+| **doOnError**               | 에러 발생 시           | 로깅, 모니터링, 알림 발송                    |
+| **doFinally**               | 정상, 에러, 취소 종료 모두  | 자원 반납, 트랜잭션 종료, MDC 정리             |
+| **onErrorMap**              | 에러 발생 시           | 에러 타입 변환                           |
+| **onErrorReturn**           | 에러 발생 시           | 대체 데이터 반환                          |
+| **onErrorComplete**         | 에러 발생 시           | 에러 무시하고 완료 시그널 전파                  |
+| **Flux.error / Mono.error** | 임의로 에러 시그널 발생     | 테스트, 조건부 에러 발생 처리                  |
+| **onErrorContinue**         | 에러 발생 후 스트림 계속    | 특정 데이터만 건너뛰고 흐름 유지                 |
+| **try-catch 미적용 이유**        | 호출 스택 분리 + 비동기 실행 | 파이프라인 내부 예외는 onErrorXXX 연산자로 처리 필요 |
+### 6. 마무리
+- 리액티브 스트림 내부의 예외는 **동기 호출 스택**과 분리되므로 try-catch로 직접 잡을 수 없음
+- 예외는 **onErrorXXX 연산자**를 통해 스트림 내부에서 처리
+- 종료 시 공통 처리(자원 반납, 로깅)는 **doFinally**로, 정상 완료 시 전용 로직은 **doOnComplete**로 구현
+- 예외 처리 전략을 명확히 설계하면 서비스 안정성과 유지보수성을 높일 수 있음
+
+--- 
