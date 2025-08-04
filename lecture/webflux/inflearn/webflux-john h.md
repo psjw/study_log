@@ -1085,3 +1085,122 @@ integerFlux.subscribe(data -> System.out.println("data = " + data));
 - `Mono → Flux` 전환은 `flatMapMany()`로 자연스럽게 가능하며, 실전에서 자주 사용됨
 
 --- 
+
+## 2025-07-30 - Operator에 대하여 - Flux
+
+### 1. 학습 주제
+- `Flux`의 Operator 개념 이해
+- 다양한 Operator의 실사용 예시 및 흐름 파악
+
+### 2. 주요 개념 요약
+| 항목               | 설명                                                                                             |
+| ---------------- | ---------------------------------------------------------------------------------------------- |
+| **Operator**     | `Mono`/`Flux`에서 데이터를 **가공, 변환, 제어**하는 연산자                                                      |
+| **Flux 기본 흐름**   | 생성 Operator → 가공 Operator → `subscribe()`                                                      |
+| **시작 방식 구분**     | **데이터로부터 시작**: `just()`, `empty()`, `from-시리즈`<br>**함수로부터 시작**: `defer()`, `create()`          |
+
+###  4. Flux 생성 - 데이터로부터 시작
+#### 4-1. `just`
+-  여러개의 값을 가진 Flux 생성
+```java
+Flux.just(1, 2, 3, 4)  
+        .subscribe(data -> System.out.println("data = " + data));
+```
+#### 4-2. `fromIterable()`
+- 리스트나 컬렉션을 Flux로 반환
+```java
+List<Integer> basicList = List.of(1, 2, 3, 4);  
+Flux.fromIterable(basicList)  
+        .subscribe(data -> System.out.println("data fromIterable = " + data));
+```
+
+### 5. Flux 생성 - 함수로부터 시작
+#### 5-1. `create()`
+- 내부에서 동기적인 객체를 반환
+```java
+Flux.create(sink -> {  
+    sink.next(1);  
+    sink.next(2);  
+    sink.next(3);  
+    sink.complete(); // sink가 언제 끝나는지 알 수 없기 때문에 마지막에 호출  
+}).subscribe(data -> System.out.println("data from sink = " + data));
+```
+#### 5-2. `defer()`
+- Flux 객체 생성을 지연 처리
+```java
+Flux.defer(() -> {  
+    return Flux.just(1, 2, 3, 4);  
+}).subscribe(data -> System.out.println("data from defer = " + data));
+```
+
+### 6. Sink
+- 동기적인 데이터 마이그레이션
+- Flux의 방출 타이밍 지정 가능 → 로직이 복잡한 상황에서 특정 데이터만 추출 가능
+- 블로킹 코드의 ThreadLocal 대신 context를 사용하여 공통 접근 변수 추출
+```java
+Flux.<String>create(sink -> {  
+            AtomicInteger counter = new AtomicInteger(0);  
+            recursiveFunction(sink, counter);  
+        })  
+        .subscribe(data -> System.out.println("data from recursive = " + data));
+
+Flux.<String>create(sink -> {  
+            recursiveFunction1(sink);  
+            recursiveFunction1(sink);  
+            recursiveFunction1(sink);  
+        })  
+        .contextWrite(Context.of("counter", new AtomicInteger(0)))  
+        .subscribe(data -> System.out.println("data from recursive1 = " + data));
+
+public void recursiveFunction(FluxSink<String> sink, AtomicInteger counter) {  
+    if (counter.incrementAndGet() < 10) { // = ++int  
+        sink.next("sink count " + counter);  
+        recursiveFunction(sink, counter);  
+    } else {  
+        sink.complete();  
+    }  
+}
+
+public void recursiveFunction1(FluxSink<String> sink) {  
+    AtomicInteger counter = sink.contextView().get("counter");  
+    if (counter.incrementAndGet() < 10) { // = ++int  
+        sink.next("1 sink count " + counter);  
+        recursiveFunction1(sink);  
+    } else {  
+        sink.complete();  
+    }  
+}
+```
+
+
+### 7. Flux → Mono 변환: `collectList()`
+- Flux를 하나의 `Mono<List<T>>`로 변환
+- 모든 데이터가 완료된 이후에 결과를 방출
+
+```java
+Mono<List<Integer>> listMono = Flux.<Integer>just(1, 2, 3, 4, 5) // 첫 번째는 빈 함수로부터, 두 번째는 데이터로부터 시작할 수 있음  
+        .map(data -> data * 2)  
+        .filter(data -> data % 4 == 0)  
+        .collectList(); // Mono<List<...>> -> 처리 완료 후 List로 모아줌 -> 언제 끝날지 모르니 Mono로 감쌈  
+listMono.subscribe(data -> System.out.println("collectList가 변환한 list data! = " + data));
+```
+> [!Warning]
+    > collectLIst() 모든 데이터가 완료된 이후에 결과를 방출
+
+### 7. 핵심 요약
+| 분류               | 설명                                   |
+| ---------------- | ------------------------------------ |
+| `just()`         | 즉시 값을 포함한 Flux 생성                   |
+| `empty()`        | 아무 이벤트도 발생하지 않는 Flux                 |
+| `fromIterable()` | 리스트나 컬렉션을 Flux로 반환                   |
+| `defer()`        | Flux 생성 시점을 구독 시점으로 지연 처리            |
+| `collectList()`  | Flux → Mono 변환, 결과를 List로 모아 한 번에 방출 |
+### 8. 마무리
+
+- Operator는 **중간 연산자**(map, filter, flatMap 등)와 **종단 연산자**(subscribe, collectList 등)로 나뉨
+- 데이터 생성 시점 제어가 필요할 때는 defer()나 create() 사용
+- Sink 사용 시 **complete() 호출 필수**
+- Context API는 리액티브 체인 전체에서 공유 데이터 관리 가능
+
+---
+
