@@ -11,6 +11,12 @@
 - [[#2025-07-24 - WebFlux에서 어떻게 블로킹을 효율적으로 처리할 수 있을까?|2025-07-24 - WebFlux에서 어떻게 블로킹을 효율적으로 처리할 수 있을까?]]
 - [[#2025-07-23 - Reactive Stream - 함수형 프로그래밍이란?|2025-07-23 - Reactive Stream - 함수형 프로그래밍이란?]]
 - [[#2025-07-28 - WebFlux의 기본적인 사용법, Flux와 Mono|2025-07-28 - WebFlux의 기본적인 사용법, Flux와 Mono]]
+- [[#2025-07-29 - Operator에 대하여 - Mono|2025-07-29 - Operator에 대하여 - Mono]]
+- [[#2025-07-30 - Operator에 대하여 - Flux|2025-07-30 - Operator에 대하여 - Flux]]
+- [[#2025-08-01 - Operator에 FlatMap에 대하여|2025-08-01 - Operator에 FlatMap에 대하여]]
+- [[#2025-08-02 - 시그널과 예외 처리에 대하여|2025-08-02 - 시그널과 예외 처리에 대하여]]
+- [[#2025-08-02 - 시그널과 예외 처리에 대하여|2025-08-02 - 시그널과 예외 처리에 대하여]]
+- [[#2025-08-02 - Scheduler에 대하여|2025-08-02 - Scheduler에 대하여]]
 
 --- 
 
@@ -1433,5 +1439,178 @@ Flux.just(1, 2, 3, 4)
 - 예외는 **onErrorXXX 연산자**를 통해 스트림 내부에서 처리
 - 종료 시 공통 처리(자원 반납, 로깅)는 **doFinally**로, 정상 완료 시 전용 로직은 **doOnComplete**로 구현
 - 예외 처리 전략을 명확히 설계하면 서비스 안정성과 유지보수성을 높일 수 있음
+
+--- 
+
+## 2025-08-02 - 시그널과 예외 처리에 대하여
+
+### 1. 학습 주제
+- 리액티브 스트림에서의 `Signal` 개념 이해
+- 예외 처리 방식과 다양한 예외 처리 연산자의 동작 흐름 파악
+- 리액티브 환경에서 `try-catch`가 동작하지 않는 이유
+
+### 2. 주요 개념 요약
+| 항목                          | 설명                                                                                                  |
+| --------------------------- | --------------------------------------------------------------------------------------------------- |
+| **doOnNext**                | 데이터가 방출될 때마다 실행                                                                                     |
+| **doOnComplete**            | 스트림이 정상적으로 완료되었을 때 실행                                                                               |
+| **doOnError**               | 에러가 발생했을 때 실행                                                                                       |
+| **doFinally**               | 스트림이 **정상 완료, 에러, 취소** 등 어떤 이유로든 종료될 때 항상 실행                                                        |
+| **호출 스택**                   | 자바 스레드에서 관리하는 메모리 영역. 함수 호출 시 스택에 호출 정보 저장, 스레드마다 독립적으로 관리                                          |
+| **onErrorMap**              | 에러를 다른 에러로 변환                                                                                       |
+| **onErrorReturn**           | 에러 발생 시 대체 데이터를 반환                                                                                  |
+| **onErrorComplete**         | 에러 발생 시 에러 대신 **완료 시그널**을 전파                                                                        |
+| **Flux.error / Mono.error** | 스트림 내에서 명시적으로 에러 시그널을 발생시킴                                                                          |
+> ℹ **doOnTerminate**: 완료/에러 시 실행되지만, 취소(`CANCEL`) 시에는 실행되지 않음.  
+> ℹ **doFinally**: 종료 원인(`SignalType`)을 인자로 제공하여 `ON_COMPLETE`, `ON_ERROR`, `CANCEL` 등을 구분 가능.
+
+### 3. 시그널 동작 예제
+- **doOnComplete** → 정상 종료 시에만 실행
+- **doFinally** → 정상, 에러, 취소 모두 실행
+```java
+Flux.just(1, 2, 3, 4) // upstream
+    .doOnNext(publishData -> System.out.println("publishData = " + publishData))
+    .doOnComplete(() -> System.out.println("스트림이 정상적으로 끝났습니다."))
+    .doOnError(ex -> System.out.println("ex 에러 상황 발생! = " + ex))
+    .doFinally(signal -> System.out.println("doFinally: 종료 타입 = " + signal))
+    .subscribe(data -> System.out.println("data = " + data));
+```
+### 4. 에러 처리
+#### 4-1. 일반적인 예외 상황
+- **자바의 try-catch는 리액티브 파이프라인 내부에서 동작하지 않음.**
+- 이유:
+    1. 리액티브 연산자(map, flatMap 등) 내부의 로직은 **즉시 실행되지 않고**, 나중에 데이터가 발행될 때 **콜백 형태로 실행**됨.
+    2. subscribe() 호출 시점과 실제 데이터 처리 시점이 **다른 스레드**에서 실행될 수 있음.
+    3. 따라서 try-catch 블록이 존재하는 **호출 스택이 이미 사라진 상태**에서 로직이 실행되므로 예외를 잡을 수 없음.
+```java
+try {
+    Flux.just(1, 2, 3, 4)
+        .map(data -> {
+            if (data == 3) {
+                throw new RuntimeException("예외 발생");
+            }
+            return data * 2;
+        })
+        .subscribeOn(Schedulers.boundedElastic()) // 외부 스레드에서 실행
+        .subscribe(data -> System.out.println("data = " + data));
+} catch (Exception e) {
+    // ❌ 여기로는 제어가 오지 않음
+    System.out.println("에러가 발생했어요!");
+}
+```
+#### 4-2. 예외처리 일관성 유지 방법
+- 에러를 데이터 흐름 안에서 처리하는 방식
+```java
+Flux.just(1, 2, 3, 4)
+    .map(data -> {
+        try {
+            if (data == 3) {
+                throw new RuntimeException("예외 발생");
+            }
+            return data * 2;
+        } catch (Exception e) {
+            // 클라이언트에서 확인 가능한 대체 데이터 반환
+            return data * 999;
+        }
+    })
+    .onErrorMap(ex -> new IllegalArgumentException("변환된 예외", ex)) // 에러 변환
+    .onErrorReturn(999) // 에러 발생 시 대체 값 반환
+    .onErrorComplete() // 에러 대신 완료 시그널 전파
+    .subscribe(data -> System.out.println("data = " + data));
+```
+#### 4-4. Flux.error() / Mono.error() 사용
+- 리액티브 스트림에서 throw 대신 사용하여 에러 시그널을 발생
+```java
+Flux.just(1, 2, 3, 4)
+    .flatMap(data -> {
+        if (data != 3) {
+            return Mono.just(data);
+        } else {
+            return Mono.error(new RuntimeException("3에서 에러 발생"));
+        }
+    })
+    .onErrorContinue((ex, value) ->
+        System.out.println("에러 발생 요소: " + value + ", 에러: " + ex.getMessage())
+    )
+    .subscribe(data -> System.out.println("data = " + data));
+```
+
+### 5. 핵심요약
+| **연산자 / 개념**                | **실행 조건**         | **주요 용도**                          |
+| --------------------------- | ----------------- | ---------------------------------- |
+| **doOnComplete**            | 정상 완료 시           | 정상 처리 후 후속 로직 실행                   |
+| **doOnError**               | 에러 발생 시           | 로깅, 모니터링, 알림 발송                    |
+| **doFinally**               | 정상, 에러, 취소 종료 모두  | 자원 반납, 트랜잭션 종료, MDC 정리             |
+| **onErrorMap**              | 에러 발생 시           | 에러 타입 변환                           |
+| **onErrorReturn**           | 에러 발생 시           | 대체 데이터 반환                          |
+| **onErrorComplete**         | 에러 발생 시           | 에러 무시하고 완료 시그널 전파                  |
+| **Flux.error / Mono.error** | 임의로 에러 시그널 발생     | 테스트, 조건부 에러 발생 처리                  |
+| **onErrorContinue**         | 에러 발생 후 스트림 계속    | 특정 데이터만 건너뛰고 흐름 유지                 |
+| **try-catch 미적용 이유**        | 호출 스택 분리 + 비동기 실행 | 파이프라인 내부 예외는 onErrorXXX 연산자로 처리 필요 |
+### 6. 마무리
+- 리액티브 스트림 내부의 예외는 **동기 호출 스택**과 분리되므로 try-catch로 직접 잡을 수 없음
+- 예외는 **onErrorXXX 연산자**를 통해 스트림 내부에서 처리
+- 종료 시 공통 처리(자원 반납, 로깅)는 **doFinally**로, 정상 완료 시 전용 로직은 **doOnComplete**로 구현
+- 예외 처리 전략을 명확히 설계하면 서비스 안정성과 유지보수성을 높일 수 있음
+
+--- 
+
+## 2025-08-02 - Scheduler에 대하여
+
+### 1. 학습 주제
+- Scheduler의 개념 이해
+- Scheduler 종류별 특징 및 사용 예시
+- `subscribeOn` vs `publishOn` 차이와 활용 방법
+
+### 2. 주요 개념 요약
+| 항목                     | 설명                                                                                                           |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------ |
+| **boundedElastic**     | 호출 시 필요한 만큼 스레드를 즉시 생성하고, 일정 시간 미사용 시 스레드를 제거. 유연하지만 생성 가능한 스레드 수에 제한이 있어 **블로킹 IO 작업(API 호출, DB 조회 등)**에 적합 |
+| **parallel**           | 최초 호출 시 **CPU 코어 수와 동일한 개수의 스레드**를 생성해 유지. 스레드 삭제 없음. **CPU 바운드(계산 중심)** 작업에 적합                              |
+| **스레드 할당 방법**          | `subscribeOn`(시작 시점 지정), `publishOn`(중간 시점 이후 전환)                                                            |
+| **Scheduler 사용 효과**    | 데이터 흐름 내에서 원하는 시점에 스레드를 지정해 블로킹 회피 및 병렬 처리 가능                                                                |
+| **subscribeOn**        | **구독 시점**부터 실행 스레드를 지정. 주로 시작 단계의 블로킹 가능성이 있는 작업(API 호출, DB 쿼리)에 사용                                          |
+| **publishOn**          | **호출된 이후**의 연산을 지정한 스레드에서 실행. 특정 구간만 스레드를 변경할 때 사용                                                           |
+| **선택 팁**               | 특별한 이유가 없으면 `boundedElastic`을 기본으로 사용하고, CPU 연산 병렬화가 필요할 때만 `parallel` 사용                                    |
+### 3. Scheduler 동작 방식 비교
+| 항목         | boundedElastic           | parallel               |
+| ---------- | ------------------------ | ---------------------- |
+| **스레드 생성** | 요청 시 즉시 생성 (필요 시 큐 대기)   | 최초 호출 시 CPU 코어 수만큼 생성  |
+| **스레드 삭제** | 일정 시간 미사용 시 삭제           | 삭제 안 함                 |
+| **특징**     | 유연하고 제한된 수의 스레드, 블로킹에 안전 | 고정 스레드 수, 블로킹에 취약      |
+| **적합 작업**  | 파일 IO, DB, API 호출        | 이미지 처리, 데이터 집계, CPU 연산 |
+
+### 4. 예제 코드
+- map : boundedElastic의 Thread사용
+- fliter :  parallel의 Thread사용
+```java
+Mono.<Integer>just(2)  
+    .map(data -> {  
+        // boundedElastic 스레드 (subscribeOn 지정)
+        System.out.println("map Thread Name = " + Thread.currentThread().getName());  
+        return data * 2;  
+    })  
+    .publishOn(Schedulers.parallel()) // 이후 연산은 parallel 스레드에서 수행
+    .filter(data -> {  
+        System.out.println("filter Thread Name = " + Thread.currentThread().getName());  
+        return data % 4 == 0;  
+    })  
+    .subscribeOn(Schedulers.boundedElastic()) // 시작 스레드 지정
+    .subscribe(data -> System.out.println("최종 데이터 = " + data));
+```
+### 5. 핵심요약
+| **항목**             | **설명**                          |
+| ------------------ | ------------------------------- |
+| **boundedElastic** | 블로킹 IO 작업에 적합 (유연하고 제한된 스레드 생성) |
+| **parallel**       | CPU 연산에 적합 (고정된 스레드 수)          |
+| **subscribeOn**    | 시작 시점 스레드 지정                    |
+| **publishOn**      | 이후 흐름 스레드 전환                    |
+| **주의사항**           | 불필요한 스레드 전환은 오히려 성능 저하          ||
+
+### 6. 마무리
+- Reactor에서 **스케줄러를 명시하지 않으면** 현재 스레드에서 실행됨.
+- **subscribeOn은 체인의 가장 마지막에 위치해도 효과가 시작 시점에 적용**됨.
+- **publishOn은 위치한 이후 단계부터 적용**되므로 순서가 중요.
+- 블로킹 연산은 boundedElastic, CPU 연산은 parallel로 명확히 구분하는 습관이 중요.
 
 --- 

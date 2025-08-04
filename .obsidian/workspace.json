@@ -208,6 +208,7 @@
   },
   "active": "ae8710c2f852217d",
   "lastOpenFiles": [
+    "webflux-john h.pdf",
     "lecture/webflux/inflearn/webflux-john h.md",
     "lecture/jpa/inflearn/jpa-김영한.md",
     "lecture/querydsl/inflearn/querydsl-김영한.md",
@@ -224,7 +225,6 @@
     "#webflux.md",
     "querydsl-김영한.pdf",
     "jpa-김영한.pdf",
-    "webflux-john h.pdf",
     "lecture/webflux/inflearn/etc/eventloop1.excalidraw.md",
     "lecture/webflux/inflearn/etc/eventloop1.drawio",
     "Excalidraw/Excalidraw.md",
@@ -245,7 +245,6 @@
     "theory/jvm/jvm-gc-theory.md",
     "theory/cs/Instruction_cycle.md",
     "theory/jpa/02-entity-mapping-basics.md",
-    "theory/jpa/01-introduction-to-jpa.md",
-    "docs/webflux/inflearn/무제.md"
+    "theory/jpa/01-introduction-to-jpa.md"
   ]
 }
