@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "experiment/gc/jvm-gc-experiment.md",
+                "file": "algorithm/practice/2025-08/2025-08-05.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "jvm-gc-experiment"
+              "title": "2025-08-05"
             }
           }
         ]
@@ -207,9 +207,13 @@
   },
   "active": "0eac9367dc700563",
   "lastOpenFiles": [
+    "algorithm/practice/2025-08/2025-08-04.md",
+    "algorithm/practice/2025-08/2025-08-05.md",
+    "algorithm/practice/2025-07/2025-07-28.md",
+    "algorithm/practice/2025-07/2025-07-23.md",
+    "experiment/gc/jvm-gc-experiment.md",
     "theory/jvm/jvm-gc-theory.md",
     "experiment/gc/jvm-gc-experiment.md.md",
-    "experiment/gc/jvm-gc-experiment.md",
     "theory/jpa/03-relationship-mapping.md",
     "lecture/jpa/inflearn/jpa-김영한.md",
     "lecture/querydsl/inflearn/querydsl-김영한.md",
@@ -222,20 +226,16 @@
     "theory/jpa/02-entity-mapping-basics.md",
     "theory/jpa/01-introduction-to-jpa.md",
     "docs/webflux/inflearn/webflux-john h.pdf",
-    "algorithm/practice/2025-08/2025-08-04.md",
     "#webflux.md",
-    "algorithm/practice/2025-07/2025-07-28.md",
     "algorithm/practice/2025-08/2025-08-01.md",
     "algorithm/practice/2025-08/2025-07-28.md",
     "algorithm/practice/2025-08",
-    "algorithm/practice/2025-07/2025-07-23.md",
     "webflux-john h.pdf",
     "flashcards/webflux.md",
     "algorithm/practice/2025-07/2025-07-29.md",
     "algorithm/practice/2025-07/2025-07-22.md",
     "algorithm/practice/2025-07/.md",
     "algorithm/practice/2025-07/2025-07-08.md",
-    "flashcards/review-dashbord.md",
     "Tags/#webflux",
     "querydsl-김영한.pdf",
     "jpa-김영한.pdf",

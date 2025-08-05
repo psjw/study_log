@@ -54,7 +54,8 @@
     "//experiment/experiment/gc",
     "//experiment",
     "//theory",
-    "//theory/theory/jvm"
+    "//theory/theory/jvm",
+    "//algorithm/algorithm/practice/algorithm/practice/2025-08"
   ],
   "expandFolderOnClick": true,
   "spacesFolder": "Tags",
