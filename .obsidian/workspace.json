@@ -13,15 +13,28 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "algorithm/practice/2025-08/2025-08-05.md",
+                "file": "theory/db/db-theory/isolation-level.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "2025-08-05"
+              "title": "isolation-level"
+            }
+          },
+          {
+            "id": "a460489089a38062",
+            "type": "leaf",
+            "state": {
+              "type": "mk-space",
+              "state": {
+                "path": "theory/jvm/etc"
+              },
+              "icon": "lucide-file",
+              "title": "etc"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -75,7 +88,7 @@
             }
           },
           {
-            "id": "6a1fb80a33298699",
+            "id": "ae691268d054689b",
             "type": "leaf",
             "state": {
               "type": "mk-path-view",
@@ -192,6 +205,7 @@
   },
   "left-ribbon": {
     "hiddenItems": {
+      "bases:Create new base": false,
       "switcher:Open quick switcher": false,
       "graph:Open graph view": false,
       "canvas:Create new canvas": false,
@@ -205,46 +219,47 @@
       "flashcards-obsidian:Generate flashcards": false
     }
   },
-  "active": "0eac9367dc700563",
+  "active": "c47cfd08e734cb58",
   "lastOpenFiles": [
-    "algorithm/practice/2025-08/2025-08-04.md",
-    "algorithm/practice/2025-08/2025-08-05.md",
-    "algorithm/practice/2025-07/2025-07-28.md",
-    "algorithm/practice/2025-07/2025-07-23.md",
-    "experiment/gc/jvm-gc-experiment.md",
+    "theory/jvm/etc/etc.md",
+    "theory/jvm/etc/Untitled.md",
+    "theory/jvm/etc",
     "theory/jvm/jvm-gc-theory.md",
-    "experiment/gc/jvm-gc-experiment.md.md",
-    "theory/jpa/03-relationship-mapping.md",
-    "lecture/jpa/inflearn/jpa-김영한.md",
-    "lecture/querydsl/inflearn/querydsl-김영한.md",
-    "theory/cs/alu-vs-fpu.md",
-    "lecture/webflux/inflearn/webflux-john h.md",
-    "theory/cs/controlunit.md",
-    "theory/cs/Instruction_cycle.md",
-    "theory/cs/cpu-performance.md",
-    "theory/cs/euc-kr-vs-utf8.md",
-    "theory/jpa/02-entity-mapping-basics.md",
+    "theory/java/oop-programing.md",
+    "theory/java/funtional-programing.md",
     "theory/jpa/01-introduction-to-jpa.md",
+    "theory/java/deisgn-pattern.md",
+    "theory/db/partition/partitioning.md",
+    "theory/db/db-theory/lock.md",
+    "theory/db/db-theory/isolation-level.md",
+    "theory/db/db-theory/acid-cap.md",
+    "theory/db/db-theory/normalization.md",
+    "theory/db/index/db-index.md",
+    "theory/db/mysql/MySQL-structure .md",
+    "theory/jpa/02-entity-mapping-basics.md",
+    "docs/java/Thread.md",
+    "docs/docs.md",
+    "docs/java/java.md",
+    "docs/java",
+    "docs/jpa/inflearn/jpa-김영한.pdf",
     "docs/webflux/inflearn/webflux-john h.pdf",
-    "#webflux.md",
-    "algorithm/practice/2025-08/2025-08-01.md",
-    "algorithm/practice/2025-08/2025-07-28.md",
-    "algorithm/practice/2025-08",
-    "webflux-john h.pdf",
+    "docs/querydsl/inflearn/querydsl-김영한.pdf",
     "flashcards/webflux.md",
-    "algorithm/practice/2025-07/2025-07-29.md",
-    "algorithm/practice/2025-07/2025-07-22.md",
-    "algorithm/practice/2025-07/.md",
-    "algorithm/practice/2025-07/2025-07-08.md",
-    "Tags/#webflux",
-    "querydsl-김영한.pdf",
-    "jpa-김영한.pdf",
-    "lecture/webflux/inflearn/etc/eventloop1.drawio",
-    "Excalidraw",
+    "flashcards/review-dashbord.md",
+    "experiment/gc/jvm-gc-experiment.md",
+    "theory/jpa/03-relationship-mapping.md",
+    "algorithm/practice/2025-07/2025-07-28.md",
+    "theory/cs/register.md",
+    "theory/spring/Spring-basic.md",
+    "theory/java",
+    "theory/spring",
+    "theory/db/index/index.md",
+    "theory/db/db-theory",
+    "theory/db/partition",
+    "theory/db/index",
+    "theory/db/mysql/etc/bufferpool.png",
     "lecture/webflux/inflearn/etc/eventloop1.png",
     "lecture/webflux/inflearn/etc/eventloop3.png",
-    "Tags",
-    "Untitled.canvas",
-    "flashcards/webflux"
+    "Untitled.canvas"
   ]
 }

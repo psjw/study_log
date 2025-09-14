@@ -12,20 +12,20 @@
 
 
 ### 🔎 상세 개념 정리
-| **항목** | **설명** |
-|:-:|:-:|
-| **Minor GC** | Young(Eden) 영역에서 객체를 Survivor 영역(S0/S1)으로 복사하며 age 증가. Swap과 Copy 후 Compact 발생 |
-| **Major GC** | Old Generation 영역 대상. Mark → Sweep → Compact 수행. Young 영역에서 Promotion된 객체 회수 |
-| **Full GC** | Heap 전체(Young + Old)와 Metaspace까지 모두 포함한 GC. 비용이 매우 큼 |
-| **Stop-the-world** | GC 시 JVM의 모든 스레드를 일시 정지시킴. GC 시간 동안 애플리케이션이 멈춤 |
-| **System.gc()** | 명시적으로 Full GC를 요청하지만, JVM이 반드시 실행하지는 않음 |
-| **Young Generation** | Eden에 생성된 객체가 S0/S1로 이동하며 age 증가. 일정 age 이상이 되면 Old 영역으로 승격 |
-| **Old Generation** | age가 일정 이상인 객체가 저장됨. Major/Full GC 대상 |
-| **Mark** | GC Root에서 도달 가능한 객체를 탐색하고 표시함 |
-| **Sweep** | Mark되지 않은 객체를 Heap에서 제거하여 메모리 회수 |
-| **Compact** | 남아 있는 객체를 연속된 블록으로 재배치해 단편화를 해소하고 성능 향상 |
-| **GC Root 조건** | 지역 변수, static 필드, JNI 참조, JVM 내부 시스템 객체 등에서 출발하는 참조 |
-| **Metaspace** | 클래스 메타 정보 저장 영역. PermGen을 대체하며 Native 메모리 사용 |
+|        **항목**        |                                     **설명**                                     |
+| :------------------: | :----------------------------------------------------------------------------: |
+|     **Minor GC**     | Young(Eden) 영역에서 객체를 Survivor 영역(S0/S1)으로 복사하며 age 증가. Swap과 Copy 후 Compact 발생 |
+|     **Major GC**     |  Old Generation 영역 대상. Mark → Sweep → Compact 수행. Young 영역에서 Promotion된 객체 회수  |
+|     **Full GC**      |             Heap 전체(Young + Old)와 Metaspace까지 모두 포함한 GC. 비용이 매우 큼              |
+|  **Stop-the-world**  |                 GC 시 JVM의 모든 스레드를 일시 정지시킴. GC 시간 동안 애플리케이션이 멈춤                 |
+|   **System.gc()**    |                    명시적으로 Full GC를 요청하지만, JVM이 반드시 실행하지는 않음                     |
+| **Young Generation** |          Eden에 생성된 객체가 S0/S1로 이동하며 age 증가. 일정 age 이상이 되면 Old 영역으로 승격           |
+|  **Old Generation**  |                     age가 일정 이상인 객체가 저장됨. Major/Full GC 대상                      |
+|       **Mark**       |                         GC Root에서 도달 가능한 객체를 탐색하고 표시함                          |
+|      **Sweep**       |                        Mark되지 않은 객체를 Heap에서 제거하여 메모리 회수                        |
+|     **Compact**      |                    남아 있는 객체를 연속된 블록으로 재배치해 단편화를 해소하고 성능 향상                     |
+|    **GC Root 조건**    |              지역 변수, static 필드, JNI 참조, JVM 내부 시스템 객체 등에서 출발하는 참조               |
+|    **Metaspace**     |                  클래스 메타 정보 저장 영역. PermGen을 대체하며 Native 메모리 사용                  |
 
 
 ### 🔁 GC 프로세스 단계 (Mark → Sweep → Compact)
