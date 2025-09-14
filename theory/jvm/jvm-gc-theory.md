@@ -31,11 +31,14 @@
 - **과정**
 	- **Loading** : 클래스 바이트코드 로드  
 	- **Linking** : 코드 검증 및 준비 (Verification → Preparation → Resolution)  
+		- Verify : JVM의 규칙과 제약
+		- Prepare : static 변수를 0으로 초기화
+		- Resolve : 심벌 참조를 직접참조로 대체
 	- **Initialization** : static 변수 초기화, static 블록 실행  
-- **종류**
-	- Bootstrap Class Loader (JDK 기본 클래스 로드)  
-	- Extension Class Loader (확장 클래스 로드)  
-	- Application Class Loader (사용자 클래스 로드)  
+- **Loading 종류**
+	- Bootstrap Class Loader (JDK 기본 클래스 로드)  : JAVA_HOME/lib
+	- Extension Class Loader (확장 클래스 로드)  : JAVA_HOME/lib/ext
+	- Application Class Loader (사용자 클래스 로드)  : sun.mice.Launcher$ApplicationLoader, Application 코드
 
 ### 2. 메모리 영역
 - **Heap** : 객체 저장 (Young, Old, Metaspace)  
