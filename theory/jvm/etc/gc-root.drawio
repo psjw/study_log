@@ -1,0 +1,102 @@
+<mxfile host="65bd71144e">
+    <diagram id="IY0aw3fsCKO0ztiXZQtd" name="Page-1">
+        <mxGraphModel dx="926" dy="1831" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="36" value="" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=3;fontFamily=배달의민족 주아;fontSize=30;" vertex="1" parent="1">
+                    <mxGeometry x="280" y="20" width="680" height="670" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" value="&amp;nbsp; Stack" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=3;fontFamily=배달의민족 주아;fontSize=25;verticalAlign=top;align=left;fontStyle=1" vertex="1" parent="1">
+                    <mxGeometry x="340" y="290" width="490" height="150" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="&amp;nbsp; Heap" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=3;fontFamily=배달의민족 주아;fontSize=25;verticalAlign=top;align=left;" vertex="1" parent="1">
+                    <mxGeometry x="340" y="70" width="490" height="220" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="&lt;span style=&quot;color: rgb(0, 0, 0); font-weight: 400; text-align: center;&quot;&gt;&amp;nbsp; Method&amp;nbsp;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-weight: 400; text-align: center;&quot;&gt;&amp;nbsp; Area&lt;/span&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=3;fontFamily=배달의민족 주아;fontSize=25;verticalAlign=top;align=left;fontStyle=1" vertex="1" parent="1">
+                    <mxGeometry x="340" y="390" width="490" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="&lt;span style=&quot;color: rgb(0, 0, 0); font-weight: 400; text-align: center;&quot;&gt;&amp;nbsp; PC Register&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=3;fontFamily=배달의민족 주아;fontSize=25;verticalAlign=top;align=left;fontStyle=1" vertex="1" parent="1">
+                    <mxGeometry x="340" y="490" width="490" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="&lt;span style=&quot;color: rgb(0, 0, 0); font-weight: 400; text-align: center;&quot;&gt;&amp;nbsp; Native&amp;nbsp;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-weight: 400; text-align: center;&quot;&gt;&amp;nbsp; Method&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-weight: 400; text-align: center;&quot;&gt;&amp;nbsp; Stack&lt;/span&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=3;fontFamily=배달의민족 주아;fontSize=25;verticalAlign=top;align=left;fontStyle=1" vertex="1" parent="1">
+                    <mxGeometry x="340" y="550" width="490" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="30" style="edgeStyle=none;html=1;exitX=1;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=3;" edge="1" parent="1" source="11" target="20">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" value="Root" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=3;fontFamily=배달의민족 주아;fontSize=20;" vertex="1" parent="1">
+                    <mxGeometry x="570" y="580" width="50" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" value="Root" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=3;fontFamily=배달의민족 주아;fontSize=20;" vertex="1" parent="1">
+                    <mxGeometry x="600" y="420" width="50" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="25" style="edgeStyle=none;html=1;exitX=0;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=3;" edge="1" parent="1" source="13" target="15">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="26" style="edgeStyle=none;html=1;exitX=1;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=3;" edge="1" parent="1" source="13" target="18">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="13" value="Root" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=3;fontFamily=배달의민족 주아;fontSize=20;" vertex="1" parent="1">
+                    <mxGeometry x="480" y="320" width="50" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="28" style="edgeStyle=none;html=1;exitX=0;exitY=0;exitDx=0;exitDy=0;entryX=1;entryY=1;entryDx=0;entryDy=0;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=3;" edge="1" parent="1" source="14" target="19">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="14" value="Root" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=3;fontFamily=배달의민족 주아;fontSize=20;" vertex="1" parent="1">
+                    <mxGeometry x="740" y="310" width="50" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="27" style="edgeStyle=none;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=3;" edge="1" parent="1" source="15" target="16">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="15" value="A" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#1ba1e2;strokeColor=#006EAF;strokeWidth=3;fontFamily=배달의민족 주아;fontSize=20;fontColor=#ffffff;" vertex="1" parent="1">
+                    <mxGeometry x="420" y="190" width="50" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="16" value="B" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#1ba1e2;strokeColor=#006EAF;strokeWidth=3;fontFamily=배달의민족 주아;fontSize=20;fontColor=#ffffff;" vertex="1" parent="1">
+                    <mxGeometry x="440" y="100" width="50" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="17" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeWidth=3;dashed=1;strokeColor=#007FFF;" vertex="1" parent="1">
+                    <mxGeometry x="330" y="60" width="510" height="240" as="geometry"/>
+                </mxCell>
+                <mxCell id="18" value="C" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#1ba1e2;strokeColor=#006EAF;strokeWidth=3;fontFamily=배달의민족 주아;fontSize=20;fontColor=#ffffff;" vertex="1" parent="1">
+                    <mxGeometry x="540" y="200" width="50" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="19" value="D" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#1ba1e2;strokeColor=#006EAF;strokeWidth=3;fontFamily=배달의민족 주아;fontSize=20;fontColor=#ffffff;" vertex="1" parent="1">
+                    <mxGeometry x="550" y="120" width="50" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="20" value="G" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#1ba1e2;strokeColor=#006EAF;strokeWidth=3;fontFamily=배달의민족 주아;fontSize=20;fontColor=#ffffff;" vertex="1" parent="1">
+                    <mxGeometry x="750" y="130" width="50" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="21" value="F" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#fad9d5;strokeColor=#ae4132;strokeWidth=3;fontFamily=배달의민족 주아;fontSize=20;" vertex="1" parent="1">
+                    <mxGeometry x="670" y="180" width="50" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="22" value="E" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#fad9d5;strokeColor=#ae4132;strokeWidth=3;fontFamily=배달의민족 주아;fontSize=20;" vertex="1" parent="1">
+                    <mxGeometry x="640" y="90" width="50" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="29" style="edgeStyle=none;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.72;entryY=0.94;entryDx=0;entryDy=0;entryPerimeter=0;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=3;" edge="1" parent="1" source="12" target="18">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="31" value="생존 객체" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#1ba1e2;strokeColor=#006EAF;strokeWidth=3;fontFamily=배달의민족 주아;fontSize=20;fontColor=#ffffff;" vertex="1" parent="1">
+                    <mxGeometry x="850" y="100" width="80" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="33" value="GC 대상" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#fad9d5;strokeColor=#ae4132;strokeWidth=3;fontFamily=배달의민족 주아;fontSize=20;" vertex="1" parent="1">
+                    <mxGeometry x="850" y="190" width="80" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="34" style="edgeStyle=none;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=3;fillColor=#dae8fc;strokeColor=#3399FF;" edge="1" parent="1" target="35">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="330" y="160" as="sourcePoint"/>
+                        <Array as="points">
+                            <mxPoint x="161" y="160"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="35" value="가비지 컬렉터" style="ellipse;whiteSpace=wrap;html=1;strokeWidth=3;fontFamily=배달의민족 주아;fontSize=25;fillColor=#dae8fc;strokeColor=#3399FF;" vertex="1" parent="1">
+                    <mxGeometry x="91" y="225" width="140" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="37" value="런타임 데이터 영역" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=3;fontFamily=배달의민족 주아;fontSize=30;" vertex="1" parent="1">
+                    <mxGeometry x="310" y="-10" width="230" height="50" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

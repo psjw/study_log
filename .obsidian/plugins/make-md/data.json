@@ -67,11 +67,12 @@
     "//docs",
     "//docs/docs/webflux/docs/webflux/inflearn",
     "//docs/docs/jpa/docs/jpa/inflearn",
-    "//docs/docs/jvm",
     "//docs/docs/java",
     "//theory/theory/db/theory/db/index",
     "//theory/theory/java",
-    "//theory/theory/jvm/theory/jvm/etc"
+    "//theory/theory/jvm/theory/jvm/etc",
+    "//theory/theory/spring",
+    "//docs/docs/jvm"
   ],
   "expandFolderOnClick": true,
   "spacesFolder": "Tags",
