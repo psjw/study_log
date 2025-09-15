@@ -138,8 +138,16 @@ public class LockSupportExample {
 
 ## 7. ReetrantLock
 - Lock  인터페이스 사용
-- Lock Condition을 활용하여 생산자/소비자 큐를 만들어 생산자 소비자 문제를 해결
 - 공정모드 / 비공정모드 존재
+```java
+// 비공정 모드 (기본값)
+Lock lock = new ReentrantLock();
+
+// 공정 모드 (FIFO 보장)
+Lock fairLock = new ReentrantLock(true);
+```
+- Lock Condition을 활용하여 생산자/소비자 큐를 만들어 생산자 소비자 문제를 해결
+
 ```java
 import java.util.concurrent.locks.*;
 
@@ -206,6 +214,13 @@ public class SpinLock {
 ## 10. 세마포어
 - 제한된 개수의 자원에 대해 동시 접근을 제어
 - 공정, 비공정 모드
+```java
+// 비공정 모드 (default)
+Semaphore semaphore = new Semaphore(3);
+
+// 공정 모드 (FIFO 보장)
+Semaphore fairSemaphore = new Semaphore(3, true);
+```
 - Wating or Timed Waiting
 ```java
 import java.util.concurrent.Semaphore;
