@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "theory/java/deisgn-pattern.md",
+                "file": "theory/java/thread.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "deisgn-pattern"
+              "title": "thread"
             }
           }
         ],
@@ -223,8 +223,8 @@
   },
   "active": "a460489089a38062",
   "lastOpenFiles": [
-    "theory/java/funtional-programing.md",
     "theory/java/deisgn-pattern.md",
+    "theory/java/funtional-programing.md",
     "theory/java/oop-programing.md",
     "experiment/gc/jvm-gc-experiment.md",
     "theory/jvm/jvm-gc-theory.md",

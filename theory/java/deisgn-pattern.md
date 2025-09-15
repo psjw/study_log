@@ -49,7 +49,7 @@ classDiagram
 ---
 
 ## 3. 템플릿 콜백 패턴
-- 전략 패턴에서 콜백 인터페이스를 실행시 주입하는 방식
+- 전략 패턴에서 콜백 인터페이스를 실행시 주입하는 방식(메서드 호출시점에 주입)
 ```mermaid
 classDiagram
     class Client

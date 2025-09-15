@@ -28,7 +28,7 @@ public class MultiTaskingExample {
 
 ## 2. 사용자 스레드 vs 데몬 스레드
 - 사용자 스레드 :  main 종료와 관계없이 작업이 끝날 때까지 실행됨
-- 데몬 스레드 : 백그라운드가 실행되며 사용자 스레드가 모두 종료되면 자동 종료
+- 데몬 스레드 : 백그라운드에서 실행되며 사용자 스레드가 모두 종료되면 자동 종료
 ```java
 public class DaemonExample {
 
