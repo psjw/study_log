@@ -41,7 +41,9 @@
     "/",
     "//theory",
     "//theory/theory/java",
-    "//theory/theory/cs"
+    "//theory/theory/cs",
+    "//theory/theory/jpa",
+    "//theory/theory/jvm"
   ],
   "expandFolderOnClick": true,
   "spacesFolder": "Tags",
@@ -53,6 +55,8 @@
     "_assets",
     "_blocks"
   ],
+  "newFileLocation": "root",
+  "newFileFolderPath": "",
   "inlineBacklinks": false,
   "inlineContext": true,
   "inlineBacklinksExpanded": false,

@@ -1,36 +1,38 @@
 {
   "main": {
-    "id": "2a9874be4f50ee5d",
+    "id": "5b87d11931764053",
     "type": "split",
     "children": [
       {
-        "id": "d71b3b058856017a",
+        "id": "1ab7a3809c937815",
         "type": "tabs",
         "children": [
           {
-            "id": "a151b796c12a54ef",
-            "type": "leaf",
-            "state": {
-              "type": "mk-uri-view",
-              "state": {
-                "path": "https://www.make.md/static/latest.md"
-              },
-              "icon": "lucide-file",
-              "title": "https://www.make.md/static/latest.md"
-            }
-          },
-          {
-            "id": "bc7bc7e831640fb8",
+            "id": "0eac9367dc700563",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "theory/java/thread.md",
+                "file": "theory/db/db-theory/isolation-level.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "thread"
+              "title": "isolation-level"
+            }
+          },
+          {
+            "id": "a460489089a38062",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "theory/java/deisgn-pattern.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "deisgn-pattern"
             }
           }
         ],
@@ -40,15 +42,15 @@
     "direction": "vertical"
   },
   "left": {
-    "id": "39c4f0cab5a505f9",
+    "id": "30c1bfd6c8312439",
     "type": "split",
     "children": [
       {
-        "id": "ee4e6a189b449874",
+        "id": "8fdd30f1f3dea938",
         "type": "tabs",
         "children": [
           {
-            "id": "d3e74ba6813d1807",
+            "id": "00ea4cae71ff9e76",
             "type": "leaf",
             "state": {
               "type": "file-explorer",
@@ -57,11 +59,11 @@
                 "autoReveal": false
               },
               "icon": "lucide-folder-closed",
-              "title": "파일 탐색기"
+              "title": "Files"
             }
           },
           {
-            "id": "ca800e8ff807dae1",
+            "id": "0e47ce46795ef89e",
             "type": "leaf",
             "state": {
               "type": "search",
@@ -78,17 +80,17 @@
             }
           },
           {
-            "id": "cb8a2bae4fd05ef9",
+            "id": "a4aaebb6f05aacdf",
             "type": "leaf",
             "state": {
               "type": "bookmarks",
               "state": {},
               "icon": "lucide-bookmark",
-              "title": "북마크"
+              "title": "Bookmarks"
             }
           },
           {
-            "id": "06aa1e3b51516810",
+            "id": "918112d10429098a",
             "type": "leaf",
             "state": {
               "type": "mk-path-view",
@@ -105,20 +107,20 @@
     "width": 300
   },
   "right": {
-    "id": "7c627380fafa132d",
+    "id": "6003d26addbce1ec",
     "type": "split",
     "children": [
       {
-        "id": "acbe35eb313b9ae8",
+        "id": "95bb48d68597feae",
         "type": "tabs",
         "children": [
           {
-            "id": "7617f551b29dfad2",
+            "id": "ca3ebd7a66b2ad39",
             "type": "leaf",
             "state": {
               "type": "backlink",
               "state": {
-                "file": "theory/java/thread.md",
+                "file": "docs/webflux/inflearn/webflux-john h.pdf",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -128,25 +130,25 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "thread 의 백링크"
+              "title": "webflux-john h 의 백링크"
             }
           },
           {
-            "id": "0b1dbcb52385f98b",
+            "id": "81e4717658e52d07",
             "type": "leaf",
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "theory/java/thread.md",
+                "file": "docs/webflux/inflearn/webflux-john h.pdf",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "thread 의 나가는 링크"
+              "title": "webflux-john h 의 나가는 링크"
             }
           },
           {
-            "id": "c3c666e3e4cac2f9",
+            "id": "bdb8d46feb5e4d61",
             "type": "leaf",
             "state": {
               "type": "tag",
@@ -161,28 +163,38 @@
             }
           },
           {
-            "id": "6317f61f44597049",
+            "id": "a0b12bfc74185104",
             "type": "leaf",
             "state": {
               "type": "outline",
               "state": {
-                "file": "theory/java/thread.md",
+                "file": "docs/webflux/inflearn/webflux-john h.pdf",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "thread 의 개요"
+              "title": "webflux-john h 의 개요"
             }
           },
           {
-            "id": "3286b39d3df49c9f",
+            "id": "76e6bcd11872aaa9",
             "type": "leaf",
             "state": {
               "type": "review-queue-list-view",
               "state": {},
               "icon": "SpacedRepIcon",
-              "title": "리뷰할 노트 대기열"
+              "title": "Notes Review Queue"
+            }
+          },
+          {
+            "id": "825da449140af65c",
+            "type": "leaf",
+            "state": {
+              "type": "mermaid-toolbar-view",
+              "state": {},
+              "icon": "trident-custom",
+              "title": "Mermaid Toolbar"
             }
           }
         ],
@@ -195,24 +207,68 @@
   },
   "left-ribbon": {
     "hiddenItems": {
-      "switcher:빠른 전환기 열기": false,
-      "graph:그래프 뷰 열기": false,
-      "canvas:새 캔버스 만들기": false,
-      "daily-notes:오늘의 일일 노트 열기": false,
-      "templates:템플릿 삽입": false,
-      "command-palette:명령어 팔레트 열기": false,
-      "bases:새 베이스 생성하기": false,
+      "bases:Create new base": false,
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
       "mermaid-tools:Open Mermaid Toolbar": false,
       "table-editor-obsidian:Advanced Tables Toolbar": false,
-      "obsidian-spaced-repetition:플래시카드 리뷰": false,
+      "obsidian-spaced-repetition:Review flashcards": false,
       "obsidian-excalidraw-plugin:New drawing": false,
       "flashcards-obsidian:Generate flashcards": false
     }
   },
-  "active": "bc7bc7e831640fb8",
+  "active": "a460489089a38062",
   "lastOpenFiles": [
+    "theory/java/funtional-programing.md",
+    "theory/java/deisgn-pattern.md",
+    "theory/java/oop-programing.md",
+    "experiment/gc/jvm-gc-experiment.md",
+    "theory/jvm/jvm-gc-theory.md",
+    "theory/cs/register.md",
+    "theory/cs/alu-vs-fpu.md",
+    "theory/cs/euc-kr-vs-utf8.md",
     "theory/cs/sync-vs-async.md",
     "theory/java/thread.md",
-    "theory/java/deisgn-pattern.md"
+    "theory/java/etc/thread-lifecycle.png",
+    "theory/java/etc/thread-lifecycle.drawio",
+    "theory/java/etc",
+    "theory/cs/etc/sync-block-vs-async-block.png",
+    "theory/cs/etc/sync-block-vs-async-block.drawio",
+    "theory/cs/etc/sync-non-block-vs-async-non-block.png",
+    "theory/cs/etc/sync-non-block-vs-async-non-block.drawio",
+    "theory/cs/etc/sync-block-vs-async-block copy.drawio",
+    "theory/cs/etc",
+    "lecture/webflux/inflearn/webflux-john h.md",
+    "theory/cs/Instruction_cycle.md",
+    "theory/cs/controlunit.md",
+    "theory/spring/spring.md",
+    "theory/db/index/db-index.md",
+    "theory/jvm/etc/java-heap-gc.png",
+    "theory/jvm/etc/java-heap-gc.drawio",
+    "theory/jvm/etc/jvm.png",
+    "theory/db/mysql/MySQL-structure .md",
+    "theory/db/db-theory/lock.md",
+    "theory/db/db-theory/isolation-level.md",
+    "theory/db/db-theory/normalization.md",
+    "theory/db/db-theory/acid-cap.md",
+    "theory/jpa/01-introduction-to-jpa.md",
+    "theory/jvm/jvm-theory.md",
+    "theory/cs/cpu-performance.md",
+    "theory/jpa/03-relationship-mapping.md",
+    "theory/jvm/etc/gc-heap.png",
+    "theory/jvm/etc/gc-heap.drawio",
+    "theory/jvm/etc/gc-root.png",
+    "theory/jvm/etc/gc-root.drawio",
+    "theory/jvm/etc/jvm.drawio",
+    "theory/jvm/etc/etc.md",
+    "theory/jvm/etc/Untitled.md",
+    "theory/db/mysql/etc/bufferpool.png",
+    "lecture/webflux/inflearn/etc/eventloop1.png",
+    "lecture/webflux/inflearn/etc/eventloop3.png",
+    "Untitled.canvas"
   ]
 }

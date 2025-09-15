@@ -10,7 +10,7 @@
   java -Xmx128m -Xms128m -XX:+UseG1GC -XX:+PrintGCDetails -Xlog:gc*:file=gc.log -cp src com.psjw.gc.GCPractice
 ```
  
-```
+
 
 ## 2. 실험 코드
 
