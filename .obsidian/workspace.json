@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "theory/db/db-theory/isolation-level.md",
+                "file": "theory/java/java-basic.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "isolation-level"
+              "title": "java-basic"
             }
           },
           {
@@ -27,16 +27,29 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "theory/java/thread.md",
+                "file": "theory/network/Handshake.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "thread"
+              "title": "Handshake"
+            }
+          },
+          {
+            "id": "2b52da1850f9bebd",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "lecture/webflux/inflearn/webflux-john h.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "webflux-john h"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -90,7 +103,7 @@
             }
           },
           {
-            "id": "918112d10429098a",
+            "id": "d493171994cd35bf",
             "type": "leaf",
             "state": {
               "type": "mk-path-view",
@@ -221,54 +234,54 @@
       "flashcards-obsidian:Generate flashcards": false
     }
   },
-  "active": "a460489089a38062",
+  "active": "0eac9367dc700563",
   "lastOpenFiles": [
-    "theory/java/deisgn-pattern.md",
-    "theory/java/funtional-programing.md",
+    "Untitled.md",
+    "theory/java/java-basic.md",
     "theory/java/oop-programing.md",
-    "experiment/gc/jvm-gc-experiment.md",
+    "theory/network/Handshake.md",
+    "lecture/webflux/inflearn/webflux-john h.md",
+    "theory/db/db-theory/isolation-level.md",
+    "lecture/querydsl/inflearn/querydsl-김영한.md",
+    "lecture/jpa/inflearn/jpa-김영한.md",
+    "docs/webflux/inflearn/webflux-john h.pdf",
+    "theory/jpa/01-introduction-to-jpa.md",
+    "theory/java/thread.md",
+    "theory/java/funtional-programing.md",
+    "theory/java/deisgn-pattern.md",
+    "theory/db/db-theory/lock.md",
+    "theory/db/db-theory/normalization.md",
+    "theory/db/db-theory/acid-cap.md",
+    "theory/db/partition/partitioning.md",
+    "theory/db/index/db-index.md",
+    "theory/java/etc/thread-lifecycle.drawio",
     "theory/jvm/jvm-gc-theory.md",
+    "theory/network/etc/tls-handshake.png",
+    "theory/network/etc/tls-handshake.drawio",
+    "theory/network/etc/4way-handshake copy.drawio",
+    "theory/network/etc/4way-handshake.png",
+    "theory/network/etc/4way-handshake.drawio",
+    "theory/network/etc/3way-handshake copy.drawio",
+    "theory/network/etc/3way-handshake.png",
+    "theory/network/etc/3way-handshake.drawio",
+    "theory/network/etc",
+    "theory/network/network.md",
+    "theory/theory.md",
+    "theory/network",
+    "experiment/gc/jvm-gc-experiment.md",
     "theory/cs/register.md",
     "theory/cs/alu-vs-fpu.md",
     "theory/cs/euc-kr-vs-utf8.md",
     "theory/cs/sync-vs-async.md",
-    "theory/java/thread.md",
     "theory/java/etc/thread-lifecycle.png",
-    "theory/java/etc/thread-lifecycle.drawio",
     "theory/java/etc",
     "theory/cs/etc/sync-block-vs-async-block.png",
-    "theory/cs/etc/sync-block-vs-async-block.drawio",
     "theory/cs/etc/sync-non-block-vs-async-non-block.png",
-    "theory/cs/etc/sync-non-block-vs-async-non-block.drawio",
-    "theory/cs/etc/sync-block-vs-async-block copy.drawio",
-    "theory/cs/etc",
-    "lecture/webflux/inflearn/webflux-john h.md",
     "theory/cs/Instruction_cycle.md",
-    "theory/cs/controlunit.md",
-    "theory/spring/spring.md",
-    "theory/db/index/db-index.md",
     "theory/jvm/etc/java-heap-gc.png",
-    "theory/jvm/etc/java-heap-gc.drawio",
     "theory/jvm/etc/jvm.png",
-    "theory/db/mysql/MySQL-structure .md",
-    "theory/db/db-theory/lock.md",
-    "theory/db/db-theory/isolation-level.md",
-    "theory/db/db-theory/normalization.md",
-    "theory/db/db-theory/acid-cap.md",
-    "theory/jpa/01-introduction-to-jpa.md",
-    "theory/jvm/jvm-theory.md",
-    "theory/cs/cpu-performance.md",
-    "theory/jpa/03-relationship-mapping.md",
     "theory/jvm/etc/gc-heap.png",
-    "theory/jvm/etc/gc-heap.drawio",
     "theory/jvm/etc/gc-root.png",
-    "theory/jvm/etc/gc-root.drawio",
-    "theory/jvm/etc/jvm.drawio",
-    "theory/jvm/etc/etc.md",
-    "theory/jvm/etc/Untitled.md",
-    "theory/db/mysql/etc/bufferpool.png",
-    "lecture/webflux/inflearn/etc/eventloop1.png",
-    "lecture/webflux/inflearn/etc/eventloop3.png",
     "Untitled.canvas"
   ]
 }
