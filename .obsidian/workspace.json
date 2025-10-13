@@ -1,69 +1,68 @@
 {
   "main": {
-    "id": "5b87d11931764053",
+    "id": "2a9874be4f50ee5d",
     "type": "split",
     "children": [
       {
-        "id": "1ab7a3809c937815",
+        "id": "d71b3b058856017a",
         "type": "tabs",
         "children": [
           {
-            "id": "0eac9367dc700563",
+            "id": "a151b796c12a54ef",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "mk-uri-view",
               "state": {
-                "file": "theory/java/java-basic.md",
-                "mode": "source",
-                "source": false
+                "path": "https://www.make.md/static/latest.md"
               },
               "icon": "lucide-file",
-              "title": "java-basic"
+              "title": "https://www.make.md/static/latest.md"
             }
           },
           {
-            "id": "a460489089a38062",
+            "id": "bc7bc7e831640fb8",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "theory/network/Handshake.md",
+                "file": "theory/java/thread.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Handshake"
+              "title": "thread"
             }
           },
           {
-            "id": "2b52da1850f9bebd",
+            "id": "270f962be508caae",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "lecture/webflux/inflearn/webflux-john h.md",
+                "file": "theory/java/thread.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "webflux-john h"
+              "title": "thread"
             }
           }
-        ]
+        ],
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
   },
   "left": {
-    "id": "30c1bfd6c8312439",
+    "id": "39c4f0cab5a505f9",
     "type": "split",
     "children": [
       {
-        "id": "8fdd30f1f3dea938",
+        "id": "ee4e6a189b449874",
         "type": "tabs",
         "children": [
           {
-            "id": "00ea4cae71ff9e76",
+            "id": "d3e74ba6813d1807",
             "type": "leaf",
             "state": {
               "type": "file-explorer",
@@ -72,11 +71,11 @@
                 "autoReveal": false
               },
               "icon": "lucide-folder-closed",
-              "title": "Files"
+              "title": "파일 탐색기"
             }
           },
           {
-            "id": "0e47ce46795ef89e",
+            "id": "ca800e8ff807dae1",
             "type": "leaf",
             "state": {
               "type": "search",
@@ -93,17 +92,17 @@
             }
           },
           {
-            "id": "a4aaebb6f05aacdf",
+            "id": "cb8a2bae4fd05ef9",
             "type": "leaf",
             "state": {
               "type": "bookmarks",
               "state": {},
               "icon": "lucide-bookmark",
-              "title": "Bookmarks"
+              "title": "북마크"
             }
           },
           {
-            "id": "d493171994cd35bf",
+            "id": "21a88df7ac7a4845",
             "type": "leaf",
             "state": {
               "type": "mk-path-view",
@@ -120,20 +119,20 @@
     "width": 300
   },
   "right": {
-    "id": "6003d26addbce1ec",
+    "id": "7c627380fafa132d",
     "type": "split",
     "children": [
       {
-        "id": "95bb48d68597feae",
+        "id": "acbe35eb313b9ae8",
         "type": "tabs",
         "children": [
           {
-            "id": "ca3ebd7a66b2ad39",
+            "id": "7617f551b29dfad2",
             "type": "leaf",
             "state": {
               "type": "backlink",
               "state": {
-                "file": "docs/webflux/inflearn/webflux-john h.pdf",
+                "file": "theory/java/thread.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -143,25 +142,25 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "webflux-john h 의 백링크"
+              "title": "thread 의 백링크"
             }
           },
           {
-            "id": "81e4717658e52d07",
+            "id": "0b1dbcb52385f98b",
             "type": "leaf",
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "docs/webflux/inflearn/webflux-john h.pdf",
+                "file": "theory/java/thread.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "webflux-john h 의 나가는 링크"
+              "title": "thread 의 나가는 링크"
             }
           },
           {
-            "id": "bdb8d46feb5e4d61",
+            "id": "c3c666e3e4cac2f9",
             "type": "leaf",
             "state": {
               "type": "tag",
@@ -176,38 +175,28 @@
             }
           },
           {
-            "id": "a0b12bfc74185104",
+            "id": "6317f61f44597049",
             "type": "leaf",
             "state": {
               "type": "outline",
               "state": {
-                "file": "docs/webflux/inflearn/webflux-john h.pdf",
+                "file": "theory/java/thread.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "webflux-john h 의 개요"
+              "title": "thread 의 개요"
             }
           },
           {
-            "id": "76e6bcd11872aaa9",
+            "id": "3286b39d3df49c9f",
             "type": "leaf",
             "state": {
               "type": "review-queue-list-view",
               "state": {},
               "icon": "SpacedRepIcon",
-              "title": "Notes Review Queue"
-            }
-          },
-          {
-            "id": "825da449140af65c",
-            "type": "leaf",
-            "state": {
-              "type": "mermaid-toolbar-view",
-              "state": {},
-              "icon": "trident-custom",
-              "title": "Mermaid Toolbar"
+              "title": "리뷰할 노트 대기열"
             }
           }
         ],
@@ -220,68 +209,38 @@
   },
   "left-ribbon": {
     "hiddenItems": {
-      "bases:Create new base": false,
-      "switcher:Open quick switcher": false,
-      "graph:Open graph view": false,
-      "canvas:Create new canvas": false,
-      "daily-notes:Open today's daily note": false,
-      "templates:Insert template": false,
-      "command-palette:Open command palette": false,
+      "switcher:빠른 전환기 열기": false,
+      "graph:그래프 뷰 열기": false,
+      "canvas:새 캔버스 만들기": false,
+      "daily-notes:오늘의 일일 노트 열기": false,
+      "templates:템플릿 삽입": false,
+      "command-palette:명령어 팔레트 열기": false,
+      "bases:새 베이스 생성하기": false,
       "mermaid-tools:Open Mermaid Toolbar": false,
       "table-editor-obsidian:Advanced Tables Toolbar": false,
-      "obsidian-spaced-repetition:Review flashcards": false,
+      "obsidian-spaced-repetition:플래시카드 리뷰": false,
       "obsidian-excalidraw-plugin:New drawing": false,
       "flashcards-obsidian:Generate flashcards": false
     }
   },
-  "active": "0eac9367dc700563",
+  "active": "270f962be508caae",
   "lastOpenFiles": [
-    "Untitled.md",
     "theory/java/java-basic.md",
-    "theory/java/oop-programing.md",
-    "theory/network/Handshake.md",
-    "lecture/webflux/inflearn/webflux-john h.md",
-    "theory/db/db-theory/isolation-level.md",
-    "lecture/querydsl/inflearn/querydsl-김영한.md",
-    "lecture/jpa/inflearn/jpa-김영한.md",
-    "docs/webflux/inflearn/webflux-john h.pdf",
-    "theory/jpa/01-introduction-to-jpa.md",
     "theory/java/thread.md",
-    "theory/java/funtional-programing.md",
+    "theory/java/oop-programing.md",
     "theory/java/deisgn-pattern.md",
-    "theory/db/db-theory/lock.md",
-    "theory/db/db-theory/normalization.md",
-    "theory/db/db-theory/acid-cap.md",
-    "theory/db/partition/partitioning.md",
-    "theory/db/index/db-index.md",
-    "theory/java/etc/thread-lifecycle.drawio",
-    "theory/jvm/jvm-gc-theory.md",
+    "theory/theory.md",
     "theory/network/etc/tls-handshake.png",
     "theory/network/etc/tls-handshake.drawio",
-    "theory/network/etc/4way-handshake copy.drawio",
     "theory/network/etc/4way-handshake.png",
     "theory/network/etc/4way-handshake.drawio",
-    "theory/network/etc/3way-handshake copy.drawio",
     "theory/network/etc/3way-handshake.png",
     "theory/network/etc/3way-handshake.drawio",
-    "theory/network/etc",
     "theory/network/network.md",
-    "theory/theory.md",
+    "theory/network/etc",
+    "theory/network/Handshake.md",
     "theory/network",
-    "experiment/gc/jvm-gc-experiment.md",
-    "theory/cs/register.md",
-    "theory/cs/alu-vs-fpu.md",
-    "theory/cs/euc-kr-vs-utf8.md",
-    "theory/cs/sync-vs-async.md",
-    "theory/java/etc/thread-lifecycle.png",
-    "theory/java/etc",
-    "theory/cs/etc/sync-block-vs-async-block.png",
-    "theory/cs/etc/sync-non-block-vs-async-non-block.png",
-    "theory/cs/Instruction_cycle.md",
-    "theory/jvm/etc/java-heap-gc.png",
-    "theory/jvm/etc/jvm.png",
-    "theory/jvm/etc/gc-heap.png",
-    "theory/jvm/etc/gc-root.png",
-    "Untitled.canvas"
+    "Untitled.md",
+    "theory/cs/sync-vs-async.md"
   ]
 }
