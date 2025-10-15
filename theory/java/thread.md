@@ -113,7 +113,8 @@ public class SynchronizedExample {
 ---
 
 ## 6. LockSupport
-- Waiting 상태로 대기
+- park() : WATING 상태로 대기
+- parkNanos() : TIMED_WAITING 상태로 대기
 - park()/unpark(), parkNanos()로 인터럽트 발생가능
 - 임계영역에 대한 구성이 필요
 ```java
@@ -147,18 +148,26 @@ Lock lock = new ReentrantLock();
 Lock fairLock = new ReentrantLock(true);
 ```
 - Lock Condition을 활용하여 생산자/소비자 큐를 만들어 생산자 소비자 문제를 해결
-
 ```java
 import java.util.concurrent.locks.*;
 
 public class ReentrantLockExample {
     private final Lock lock = new ReentrantLock();
+    private final Condition condition = lock.newCondition();
+    private Queue<Integer> queue = new ArrayDeque<>();
+    private final int MAX = 5;
+    
     private int count = 0;
 
     public void increment() {
         lock.lock();
         try {
+		    while(queue.size() == max) {
+			    condition.await(); //대기
+		    }   
             count++;
+	        queue.offer(count);
+	        condition.signal(); //꺠어남
         } finally {
             lock.unlock();
         }
@@ -245,3 +254,13 @@ public class SemaphoreExample {
     }
 }
 ```
+
+--- 
+
+## 11. 동기화 컬렉션
+- ArrayList : CopyOnWriteArrayList
+- HashSet : CopyOnWriteArraySet
+- TreeSet : ConcurrentSkipListSet
+- HashMap : ConcurrentHashMap
+- TreeMap : ConcurrentSkipListMap
+

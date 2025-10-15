@@ -56,7 +56,10 @@
     "//lecture/lecture/querydsl",
     "//lecture/lecture/querydsl/lecture/querydsl/inflearn",
     "//lecture/lecture/webflux",
-    "//lecture/lecture/webflux/lecture/webflux/inflearn"
+    "//lecture/lecture/webflux/lecture/webflux/inflearn",
+    "//theory/theory/cs",
+    "//theory/theory/jpa",
+    "//theory/theory/jvm"
   ],
   "expandFolderOnClick": true,
   "spacesFolder": "Tags",
