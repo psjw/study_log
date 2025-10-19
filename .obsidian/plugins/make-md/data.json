@@ -46,7 +46,6 @@
     "//docs",
     "//docs/docs/jpa/docs/jpa/inflearn",
     "//theory/theory/java",
-    "//theory/theory/db",
     "//theory/theory/db/theory/db/db-theory",
     "//theory/theory/db/theory/db/index",
     "//theory/theory/db/theory/db/partition",
@@ -59,7 +58,8 @@
     "//lecture/lecture/webflux/lecture/webflux/inflearn",
     "//theory/theory/cs",
     "//theory/theory/jpa",
-    "//theory/theory/jvm"
+    "//theory/theory/jvm",
+    "//theory/theory/msa"
   ],
   "expandFolderOnClick": true,
   "spacesFolder": "Tags",
