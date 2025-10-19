@@ -1,6 +1,10 @@
+- [[#1. 2PC|1. 2PC]]
+- [[#2. TCC|2. TCC]]
+- [[#3. SAGA|3. SAGA]]
+	- [[#3. SAGA#3-1. Saga - Orchestration|3-1. Saga - Orchestration]]
+	- [[#3. SAGA#3-2. Saga - Choreography|3-2. Saga - Choreography]]
 
-
-# 1. 2PC
+## 1. 2PC
 - Two-Phase Commit Protocol의 약자로 분산시스템에서 트랜잭션의 원자성을 보장하기 위해 사용하는 프로토콜
 - 트랜잭션을 두단계로 나누어 처리함
 	- Prepare 단계 : 트랜잭션 매니저가 참여자에게 작업 준비가 가능하는지 묻는다.
@@ -52,7 +56,7 @@ update product set quantity=900 where id =1; --락 걸림 xa commit 'product_1';
 		- 실용성이 낮습니다.
 	- 실무에서는?
 		- 2PC보다 다른 방법을 사용하여 분산트랜잭션을 구현
-# 2. TCC
+## 2. TCC
 - TCC(Try-Confirm-Cancel)는 분산 시스템에서 데이터 정합성을 보장하기 위해 사용하는 분산 트랜잭션 처리방식
 - 세단계로 나누어 트랜잭션을 관리
 	- Try : 필요한 리소스를 점유할 수 있는지 검사하고 임시로 예약합니다.
@@ -75,8 +79,8 @@ update product set quantity=900 where id =1; --락 걸림 xa commit 'product_1';
 		- 특정시간이 지난 경우 Admin에서 확인
 	- Cancel 단계 실패
 		- Order의 상태에 맞춰 자동으로 취소 처리
-# 3. SAGA
-## 3-1. Saga - Orchestration
+## 3. SAGA
+### 3-1. Saga - Orchestration
 - Coodinator(또는 Orchestrator)가 각 참여 서비스들을 순차적으로 호출하며 전체 트랜잭션의 흐름을 제어
 - 장점
 	- 구현 난이도와 유지보수 난이도가 낮음
@@ -84,7 +88,7 @@ update product set quantity=900 where id =1; --락 걸림 xa commit 'product_1';
 	- 시간이 지날수록 Coorniator(Ochestrator)가 복잡해 질 수 있음
 	- 서비스간 결합도가 증가함
 
-## 3-2. Saga - Choreography
+### 3-2. Saga - Choreography
 - Coordinator 없이 각 서비스가 이벤트를 발행, 구독하며 이를 통해 전체 트랜잭션의 흐름을 제어하는 방식
 - 장점
 	- Event 기반으로 동작을 하다보니 서비스간 결합도가 낮음
