@@ -59,7 +59,10 @@
     "//theory/theory/cs",
     "//theory/theory/jpa",
     "//theory/theory/jvm",
-    "//theory/theory/msa"
+    "//theory/theory/msa",
+    "//theory/theory/db",
+    "//lecture/lecture/vue",
+    "//lecture/lecture/vue/lecture/vue/inflearn"
   ],
   "expandFolderOnClick": true,
   "spacesFolder": "Tags",
