@@ -72,6 +72,18 @@
               "icon": "lucide-file",
               "title": "network-programing"
             }
+          },
+          {
+            "id": "c948960fbbd4552b",
+            "type": "leaf",
+            "state": {
+              "type": "release-notes",
+              "state": {
+                "currentVersion": "1.11.5"
+              },
+              "icon": "lucide-book-up",
+              "title": "릴리즈 노트 1.11.5"
+            }
           }
         ],
         "currentTab": 4
@@ -128,7 +140,7 @@
             }
           },
           {
-            "id": "58608066e1d49d55",
+            "id": "61a15f6d59772629",
             "type": "leaf",
             "state": {
               "type": "mk-path-view",
@@ -251,8 +263,10 @@
   },
   "active": "52b7896079109d18",
   "lastOpenFiles": [
-    "theory/java/java-basic.md",
     "theory/java/network-programing.md",
+    "Untitled.md",
+    "무제.md",
+    "theory/java/java-basic.md",
     "theory/java/deisgn-pattern.md",
     "lecture/vue/vue3-basic-gymcoding.md",
     "lecture/webflux/inflearn/webflux-john h.md",
@@ -277,8 +291,6 @@
     "theory/jvm/jvm-gc-theory.md",
     "theory/cs/alu-vs-fpu.md",
     "theory/db/db-theory/lock.md",
-    "theory/db/db-theory/isolation-level.md",
-    "theory/cs/cpu-performance.md",
     "theory/network/etc/tls-handshake.png",
     "theory/network/etc/tls-handshake.drawio",
     "theory/network/etc/4way-handshake.png",

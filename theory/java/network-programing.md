@@ -1,7 +1,16 @@
 
 ## 1. 소켓통신이란?
-- 소켓은 네트워크를 통한 데이터를 주고 받기 위한 양방향 통신의 EndPoint
+- 소켓은 네트워크를 통해 데이터를 주고 받기 위한 양방향 통신의 EndPoint
 - IP주소와 PORT번호를 통해 프로세스간 통신
+```mermaid
+flowchart LR
+    C["Client Socket (IP:Port)"]
+    N["TCP/IP Network"]
+    S["Server Socket (IP:Port)"]
+
+    C <---> N
+    N <---> S
+```
 
 ## 2.  Blocking I/O 방식의 읽기 흐름
 ### 2-1. 동작방식
@@ -20,9 +29,16 @@ ServerSocket serverSocket = new ServerSocket(8080, 50); //port, backlog
 Socket clientSocket = serverSocket.accept(); //Blocking
 ```
 #### 3. 데이터 송수신
-```
+- Thread를 사용
+```java
 InputStream in = clientSocket.getInputStream(); 
 OutputStream out = clientSocket.getOutputStream();
+
+ByteBuffer buffer = ByteBuffer.allocate(1024);
+
+// read()도 블로킹됨
+// 커널 버퍼에 데이터가 없으면 여기서 대기
+int bytesRead = in.read(buffer);  //Blocking
 ```
 
 ### 2-2. 동작 흐름
@@ -62,6 +78,50 @@ sequenceDiagram
 
 ## 3. Blocking 방식의 장단점 
 
+#### 3-1. 장점
+
+**1. 구현이 직관적이고 단순함**
+
+```java
+// 코드 흐름이 순차적이고 이해하기 쉬움
+int data = in.read();      // 1단계: 읽기
+process(data);             // 2단계: 처리
+out.write(response);       // 3단계: 응답
+
+```
+
+**2. 디버깅이 용이**
+
+- 동기적 처리로 스택 트레이스 추적 쉬움
+- 각 스레드의 상태가 명확함
+
+**3. 간단한 서비스에 적합**
+
+- 소수의 클라이언트 처리
+- 즉각적인 응답이 필요한 경우
+
+#### 3-2. 단점
+
+**1. 확장성 문제 (가장 큰 단점)**
+
+```
+100개 Client 접속 → 100개 스레드 필요
+1000개 Client 접속 → 1000개 스레드 필요
+10000개 Client 접속 → 메모리 부족
+```
+
+**2. 리소스 낭비**
+
+```java
+// 대기 중인 스레드는 CPU를 사용하지 않지만
+// 메모리는 계속 점유 (스레드 스택 공간)
+ByteBuffer buffer = ByteBuffer.allocate(1024);
+int bytesRead = in.read(buffer);  // 이 순간 다른 작업 불가
+```
+
+**3. Context Switching 비용**
+
+- 많은 스레드 → 잦은 컨텍스트 스위칭
 
 ## 4. Non-Blocking / NIO 개념
 ### 4-1. 간략 설명
