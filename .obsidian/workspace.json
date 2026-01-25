@@ -48,18 +48,6 @@
             }
           },
           {
-            "id": "ad47b82c6562180b",
-            "type": "leaf",
-            "state": {
-              "type": "release-notes",
-              "state": {
-                "currentVersion": "1.10.6"
-              },
-              "icon": "lucide-book-up",
-              "title": "릴리즈 노트 1.10.6"
-            }
-          },
-          {
             "id": "52b7896079109d18",
             "type": "leaf",
             "state": {
@@ -72,21 +60,9 @@
               "icon": "lucide-file",
               "title": "network-programing"
             }
-          },
-          {
-            "id": "c948960fbbd4552b",
-            "type": "leaf",
-            "state": {
-              "type": "release-notes",
-              "state": {
-                "currentVersion": "1.11.5"
-              },
-              "icon": "lucide-book-up",
-              "title": "릴리즈 노트 1.11.5"
-            }
           }
         ],
-        "currentTab": 4
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -140,7 +116,7 @@
             }
           },
           {
-            "id": "ac0d196b559cf286",
+            "id": "f486c129dc530009",
             "type": "leaf",
             "state": {
               "type": "mk-path-view",
@@ -154,7 +130,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "right": {
     "id": "7c627380fafa132d",
@@ -234,7 +211,7 @@
               "type": "review-queue-list-view",
               "state": {},
               "icon": "SpacedRepIcon",
-              "title": "리뷰할 노트 대기열"
+              "title": "Notes Review Queue"
             }
           }
         ],
@@ -247,22 +224,25 @@
   },
   "left-ribbon": {
     "hiddenItems": {
-      "switcher:빠른 전환기 열기": false,
-      "graph:그래프 뷰 열기": false,
-      "canvas:새 캔버스 만들기": false,
-      "daily-notes:오늘의 일일 노트 열기": false,
-      "templates:템플릿 삽입": false,
-      "command-palette:명령어 팔레트 열기": false,
-      "bases:새 베이스 생성하기": false,
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false,
+      "obsidian-spaced-repetition:Review flashcards": false,
       "mermaid-tools:Open Mermaid Toolbar": false,
       "table-editor-obsidian:Advanced Tables Toolbar": false,
-      "obsidian-spaced-repetition:플래시카드 리뷰": false,
       "obsidian-excalidraw-plugin:New drawing": false,
       "flashcards-obsidian:Generate flashcards": false
     }
   },
-  "active": "3286b39d3df49c9f",
+  "active": "52b7896079109d18",
   "lastOpenFiles": [
+    "theory/java/etc/image.png",
+    "Pasted image 20260126004229.png",
+    "lecture/vue/inflearn/vue3-basic-gymcoding.md",
     "theory/java/network-programing.md",
     "Untitled.md",
     "무제.md",
@@ -270,7 +250,6 @@
     "theory/java/deisgn-pattern.md",
     "lecture/vue/vue3-basic-gymcoding.md",
     "lecture/webflux/inflearn/webflux-john h.md",
-    "lecture/vue/inflearn/vue3-basic-gymcoding.md",
     "theory/db/db-theory/acid-cap.md",
     "lecture/jpa/inflearn/jpa-김영한.md",
     "lecture/vue/vue.md",
@@ -290,7 +269,6 @@
     "theory/jpa/03-relationship-mapping.md",
     "theory/jvm/jvm-gc-theory.md",
     "theory/cs/alu-vs-fpu.md",
-    "theory/db/db-theory/lock.md",
     "theory/network/etc/tls-handshake.png",
     "theory/network/etc/tls-handshake.drawio",
     "theory/network/etc/4way-handshake.png",
