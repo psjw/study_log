@@ -125,7 +125,134 @@ int bytesRead = in.read(buffer);  // 이 순간 다른 작업 불가
 
 ## 4. Non-Blocking / NIO 개념
 ### 4-1. 간략 설명
+- 하나의 스레드가 여러 채널을 관리하며, **준비된 채널만 선택적으로 처리**
+```
+기존 Blocking:  Thread-1 → Client-1 (accept 대기 또는 read 대기)
+               Thread-2 → Client-2 (accept 대기 또는 read 대기)
+               Thread-3 → Client-3 (accept 대기 또는 read 대기)
+               → 각 스레드가 블로킹됨
+
+NIO:           Thread-1 → [Selector] → ServerChannel 새 연결 준비됨
+                                     → Client-1  데이터 없음
+                                     → Client-2  읽기 가능
+                                     → Client-3  데이터 없음
+
+               → ServerChannel과 Client-2만 처리 (논블로킹)
+               → 다시 select()로 돌아가서 다음 이벤트 대기
+```
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant K as Server Kernel
+    participant S as Selector Thread
+    participant SEL as Selector
+    participant ServerChannel as ServerChannel
+    participant ClientChannel as ClientChannel
+
+    %% ServerChannel 등록
+    S->>ServerChannel: configureBlocking(false)
+    S->>SEL: register(ServerChannel, OP_ACCEPT)
+    note over SEL: 관심 이벤트: ServerChannel -> OP_ACCEPT
+
+    %% TCP 연결
+    C->>K: SYN
+    K-->>C: SYN-ACK
+    C->>K: ACK
+    note over K: 연결 완료 (backlog 적재)
+
+    %% accept 이벤트 감지
+    S->>SEL: select()
+    SEL-->>S: ready(OP_ACCEPT: ServerChannel)
+
+    %% accept 처리
+    S->>ServerChannel: accept()
+    ServerChannel-->>S: ClientChannel 생성
+
+    %% ClientChannel 등록
+    S->>ClientChannel: configureBlocking(false)
+    S->>SEL: register(ClientChannel, OP_READ)
+    note over SEL: 관심 이벤트: ClientChannel -> OP_READ
+
+    %% 데이터 수신
+    C->>K: 데이터 전송
+    note over K: Receive Buffer 저장
+
+    %% read 이벤트 감지
+    S->>SEL: select()
+    SEL-->>S: ready(OP_READ: ClientChannel)
+
+    %% read 처리
+    S->>ClientChannel: read()
+    ClientChannel-->>S: 데이터 반환
+
+    note over S: 처리 후 다시 select()
+```
+
 ### 4-2. NIO 주요 구성요소(channel, buffer,selector)
+#### 1.  Channel (채널)
+```java
+// 양방향 데이터 통로
+ServerSocketChannel serverChannel = ServerSocketChannel.open();
+SocketChannel clientChannel = serverChannel.accept();
+
+// 읽기와 쓰기 모두 가능
+clientChannel.read(buffer);   // 읽기
+clientChannel.write(buffer);  // 쓰기
+
+```
+
+**종류:**
+- `ServerSocketChannel`: 서버 소켓
+- `SocketChannel`: 클라이언트 연결
+- `FileChannel`: 파일 I/O
+- `DatagramChannel`: UDP 통신
+#### 2. Buffer (버퍼)
+- 데이터를 읽고 쓰는 임시 저장소
+- Buffer의 3가지 핵심 속성
+	- `position` : 현재 읽기/쓰기 위치
+	- `limit` : 읽기/쓰기 가능한 끝 위치
+	- `capacity` : 버퍼의 전체 크기
+```java
+// 데이터를 읽고 쓰는 임시 저장소
+// 1. 쓰기 모드 (데이터를 버퍼에 넣기)
+buffer.put((byte)1);
+channel.read(buffer);  // 채널에서 버퍼로 읽기
+
+// 2. 읽기 모드로 전환
+buffer.flip();  // limit = position, position = 0
+
+// 3. 읽기 모드 (버퍼에서 데이터 꺼내기)
+byte data = buffer.get();
+channel.write(buffer);  // 버퍼에서 채널로 쓰기
+
+// 4. 다시 쓰기 모드로
+buffer.clear();
+```
+
+#### 3. Selector (셀렉터)
+- Selector는 **여러 채널의 I/O 이벤트를 하나의 스레드에**서 관리
+- Selector 이벤트 종류
+	- `SelectionKey.OP_ACCEPT` :  연결 수락 가능
+	- `SelectionKey.OP_CONNECT` : 연결 가능
+	- `SelectionKey.OP_READ` : 읽기 가능
+	- `SelectionKey.OP_WRITE` : 쓰기 가능
+
+```java
+// 여러 채널을 하나의 스레드로 관리
+Selector selector = Selector.open();
+
+// 채널을 셀렉터에 등록 + 관심 이벤트 지정
+channel.register(selector, SelectionKey.OP_READ);
+
+// 준비된 채널이 있을 때까지 대기
+int readyChannels = selector.select();  // 블로킹
+
+// 준비된 채널들 처리
+Set<SelectionKey> selectedKeys = selector.selectedKeys();
+```
+
+
+
 ### 4-3. NIO에서 읽기(read) 처리 흐름 (핵심)
 
 ```mermaid
